@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="GUI.Controller">
+    <MenuBar>
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem mnemonicParsing="false" text="Close"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+            <MenuItem mnemonicParsing="false" text="Delete"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+            <MenuItem mnemonicParsing="false" text="About"/>
+        </Menu>
+    </MenuBar>
+    <HBox VBox.vgrow="ALWAYS">
+        <ScrollPane fx:id="mapScrollPane" fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308"
+                    maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="600.0" prefHeight="600.0"
+                    prefWidth="800.0" HBox.hgrow="ALWAYS"/>
+        <Accordion HBox.hgrow="NEVER">
+            <panes>
+                <TitledPane animated="false" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minHeight="0.0"
+                            minWidth="0.0" prefHeight="200.0" prefWidth="200.0" text="Ships">
+                    <ListView prefHeight="200.0" prefWidth="200.0"/>
+                </TitledPane>
+                <TitledPane animated="false" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minHeight="0.0"
+                            minWidth="0.0" prefHeight="200.0" prefWidth="200.0" text="History">
+                    <ListView prefHeight="200.0" prefWidth="200.0"/>
+                </TitledPane>
+                <TitledPane animated="false" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minHeight="0.0"
+                            minWidth="0.0" prefHeight="200.0" prefWidth="200.0" text="Meteodata">
+                    <ListView prefHeight="200.0" prefWidth="200.0"/>
+                </TitledPane>
+            </panes>
+        </Accordion>
+    </HBox>
+</VBox>
