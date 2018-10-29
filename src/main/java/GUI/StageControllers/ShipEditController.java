@@ -1,12 +1,10 @@
 package GUI.StageControllers;
 
+import Model.Ship;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.converter.DoubleStringConverter;
 
@@ -24,19 +22,19 @@ public class ShipEditController implements Initializable {
     private GridPane shipEditViewGridPane;
 
     @FXML
-    private TextField nameTextField;
+    public TextField nameTextField;
 
     @FXML
-    private Spinner<Double> tonnageSpinner;
+    public Spinner<Double> tonnageSpinner;
 
     @FXML
-    private Spinner<Double> maxVelocitySpinner;
+    public Spinner<Double> maxVelocitySpinner;
 
     @FXML
-    private Spinner<Double> fuelAmountSpinner;
+    public Spinner<Double> fuelAmountSpinner;
 
     @FXML
-    private Spinner<Double> fuelConsumptionRateSpinner;
+    public Spinner<Double> fuelConsumptionRateSpinner;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -69,5 +67,7 @@ public class ShipEditController implements Initializable {
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1000, 0, 100));
         fuelConsumptionRateSpinner.setValueFactory(
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, 0, 0.01));
+
+
     }
 }

@@ -2,48 +2,68 @@ package GUI.Controls;
 
 import GUI.Stages.ShipEditStage;
 import Model.Ship;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.stage.Stage;
+import javafx.util.Callback;
 
-public class ShipListView extends ListView {
+public class ShipListView extends ListView<ListViewRow<Ship>> {
 
     private class ShipRow extends ListViewRow<Ship> {
-        ShipRow(String label) {
-            super(label);
-        }
+
+        ShipRow() { super(); }
+
+        ShipRow(String label) { super(label); }
 
         ShipRow(String label, Node... nodes) {
             super(label, nodes);
         }
     }
 
-    private Stage editView;
+    private static class ColorRectCell extends ListCell<ShipRow> {
+        @Override
+        public void updateItem(ShipRow item, boolean empty) {
+            super.updateItem(item, empty);
+            setHeight(item.getHeight());
+        }
+    }
 
     public ShipListView() {
         super();
         setPrefSize(200, 200);
-        getItems().add(new ShipRow("New...", new CustomButton("+", this::createShip)));
+        ShipRow shipRow = new ShipRow("New...", new CustomButton("+", this::createShip));
+        shipRow.setLabelAlignment(Pos.CENTER_RIGHT);
+        getItems().add(shipRow);
     }
+
 
     private void createShip() {
-        addShipRow("Test");
-    }
-
-    private void addShipRow(String label, Node... items) {
-        ShipRow lvr = new ShipRow(label);
-        lvr.add(new CustomButton("Edit", ShipEditStage::new));
-        lvr.add(new CustomButton("-", onRemoveListViewRow(lvr)));
+        ShipRow shipRow = new ShipRow();
+        edit(shipRow).invoke();
+        if (shipRow.getTarget() == null) {
+            return;
+        }
+        shipRow.add(new CustomButton("Edit", edit(shipRow)));
+        shipRow.add(new CustomButton("-", remove(shipRow)));
         if (getItems().size() == 0) {
-            getItems().add(lvr);
+            getItems().add(shipRow);
         } else {
-            getItems().add(getItems().size() - 1, lvr);
+            getItems().add(getItems().size() - 1, shipRow);
         }
     }
 
-    private ActionDelegate onRemoveListViewRow(ShipRow lvr) {
+    private ActionDelegate edit(final ShipRow shipRow) {
         return () -> {
-            getItems().remove(lvr);
+            ShipEditStage ses = new ShipEditStage();
+            shipRow.setTarget(ses.getData());
+            shipRow.setLabel(ses.getData().name);
+        };
+    }
+
+    private ActionDelegate remove(ShipRow shipRow) {
+        return () -> {
+            getItems().remove(shipRow);
         };
     }
 }

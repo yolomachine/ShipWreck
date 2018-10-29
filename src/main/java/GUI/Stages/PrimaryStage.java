@@ -24,6 +24,7 @@ public class PrimaryStage extends Stage {
         setScene(new Scene(root));
         setMinWidth(1000);
         setMinHeight(664);
+        setOnCloseRequest(event -> System.exit(0));
         show();
     }
 }
