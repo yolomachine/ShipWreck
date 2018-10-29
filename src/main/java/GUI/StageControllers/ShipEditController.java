@@ -1,0 +1,73 @@
+package GUI.StageControllers;
+
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.layout.GridPane;
+import javafx.util.converter.DoubleStringConverter;
+
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParsePosition;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
+
+public class ShipEditController implements Initializable {
+
+    @FXML
+    private GridPane shipEditViewGridPane;
+
+    @FXML
+    private TextField nameTextField;
+
+    @FXML
+    private Spinner<Double> tonnageSpinner;
+
+    @FXML
+    private Spinner<Double> maxVelocitySpinner;
+
+    @FXML
+    private Spinner<Double> fuelAmountSpinner;
+
+    @FXML
+    private Spinner<Double> fuelConsumptionRateSpinner;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        DecimalFormat format = new DecimalFormat("#.###", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        UnaryOperator<TextFormatter.Change> filter = c -> {
+            if (c.isContentChange()) {
+                ParsePosition parsePosition = new ParsePosition(0);
+                format.parse(c.getControlNewText(), parsePosition);
+                if (parsePosition.getIndex() == 0 ||
+                    parsePosition.getIndex() < c.getControlNewText().length()) {
+                    return  null;
+                }
+            }
+            return c;
+        };
+        for (Node node : shipEditViewGridPane.getChildren()) {
+            TextFormatter<Double> spinnerFormatter = new TextFormatter<>(new DoubleStringConverter(), 0.0, filter);
+            if (node instanceof Spinner) {
+                Spinner spinner = (Spinner) node;
+                spinner.setEditable(true);
+                spinner.getEditor().setTextFormatter(spinnerFormatter);
+            }
+        }
+        nameTextField.setEditable(true);
+        tonnageSpinner.setValueFactory(
+                new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 20000, 0, 500));
+        maxVelocitySpinner.setValueFactory(
+                new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 500, 0, 10));
+        fuelAmountSpinner.setValueFactory(
+                new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1000, 0, 100));
+        fuelConsumptionRateSpinner.setValueFactory(
+                new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, 0, 0.01));
+    }
+}
