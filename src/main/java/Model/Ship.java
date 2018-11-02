@@ -1,17 +1,18 @@
 package Model;
 
-import GUI.Controls.InterfaceNode;
+import GUI.Controls.InteractiveNode;
+import javafx.scene.control.Tooltip;
+import javafx.scene.text.Font;
 
 import java.util.ArrayList;
 
-public class Ship extends InterfaceNode {
+public class Ship extends InteractiveNode {
 
     private int id;
     private double tonnage;
     private double maxVelocity;
     private double fuelAmount;
     private double fuelConsumptionRate;
-    private ArrayList<Route> routes;
 
     public Ship(String name, double tonnage, double maxVelocity, double fuelAmount, double fuelConsumptionRate) {
         super(name, Type.Ship);
@@ -64,5 +65,16 @@ public class Ship extends InterfaceNode {
 
     public double getFuelConsumptionRate() {
         return fuelConsumptionRate;
+    }
+
+    @Override
+    public Tooltip getTooltip() {
+        String tooltipText = String.format(
+                "Id: %d; Tonnage: %.2f; Max velocity: %.2f; Fuel amount: %.2f",
+                id, tonnage, maxVelocity, fuelAmount
+        );
+        Tooltip tooltip = new Tooltip(tooltipText);
+        tooltip.setFont(new Font(24));
+        return tooltip;
     }
 }

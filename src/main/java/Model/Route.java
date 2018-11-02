@@ -1,13 +1,14 @@
 package Model;
 
-import GUI.Controls.InterfaceNode;
+import GUI.Controls.InteractiveNode;
 import Model.Geo.Point;
 import Model.Geo.PointArray;
+import javafx.scene.control.Tooltip;
+import javafx.scene.text.Font;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-public class Route extends InterfaceNode {
+public class Route extends InteractiveNode {
 
     private int id;
     private int shipId;
@@ -24,6 +25,14 @@ public class Route extends InterfaceNode {
     public Route(String name, byte[] blob) {
         super(name, Type.Route);
         this.points = fromBlob(blob);
+        this.start = points.get(0);
+        this.destination = points.get(points.size() - 1);
+    }
+
+    public Route(int id, int shipId, String name, byte[] blob) {
+        this(name, blob);
+        this.id = id;
+        this.shipId = shipId;
     }
 
     public void setId(int id) {
@@ -68,6 +77,10 @@ public class Route extends InterfaceNode {
         return points;
     }
 
+    public void toShapefile() {
+
+    }
+
     public byte[] toBlob() {
         ByteBuffer bb = ByteBuffer.allocate(Integer.BYTES + points.size() * 8 * 2);
         bb.putInt(points.size());
@@ -81,11 +94,23 @@ public class Route extends InterfaceNode {
     public PointArray fromBlob(byte[] blob) {
         ByteBuffer bb = ByteBuffer.wrap(blob);
         PointArray points = new PointArray();
-        for (int i = 0; i < bb.getInt(); ++i) {
+        int size = bb.getInt();
+        for (int i = 0; i < size; ++i) {
             double lat = bb.getDouble();
             double lon = bb.getDouble();
             points.add(new Point(lat, lon));
         }
         return points;
+    }
+
+    @Override
+    public Tooltip getTooltip() {
+        String tooltipText = String.format(
+                "Id: %d; Start { Lat: %.2f, Lon: %.2f }; Destination { Lat: %.2f, Lon: %.2f }",
+                id, start.getLat(), start.getLon(), destination.getLat(), destination.getLon()
+        );
+        Tooltip tooltip = new Tooltip(tooltipText);
+        tooltip.setFont(new Font(24));
+        return tooltip;
     }
 }

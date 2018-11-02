@@ -56,7 +56,7 @@ public class MainController implements Initializable {
     private JMapPane createMap() {
         JMapPane mapPane = new JMapPane();
         try {
-            File file = new File("res/shapefiles/ne_50m_admin_0_sovereignty.shp");
+            File file = new File("res/Shapefiles/ne_50m_admin_0_sovereignty.shp");
 
             FileDataStore store = FileDataStoreFinder.getDataStore(file);
             SimpleFeatureSource featureSource = store.getFeatureSource();

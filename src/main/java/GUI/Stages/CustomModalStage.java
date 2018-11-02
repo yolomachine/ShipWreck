@@ -3,6 +3,7 @@ package GUI.Stages;
 import GUI.Controls.ActionDelegate;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 
 public class CustomModalStage<T> extends CustomStage {
@@ -11,8 +12,8 @@ public class CustomModalStage<T> extends CustomStage {
     private Button confirmButton;
     private Button cancelButton;
 
-    CustomModalStage(String rootLoc, String iconLoc, String title, int minWidth, int minHeight, ActionDelegate onCreate) {
-        super(rootLoc, iconLoc, title, minWidth, minHeight, onCreate);
+    CustomModalStage(String rootLoc, ImageView icon, String title, int minWidth, int minHeight, ActionDelegate onCreate) {
+        super(rootLoc, icon, title, minWidth, minHeight, onCreate);
         initModality(Modality.APPLICATION_MODAL);
         Scene scene = getScene();
         confirmButton = (Button) scene.lookup("#confirmButton");

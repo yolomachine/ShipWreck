@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="300" prefWidth="300" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.StageControllers.ShipEditController">
+<AnchorPane prefHeight="300" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.StageControllers.ShipEditController">
     <GridPane fx:id="shipEditViewGridPane" alignment="CENTER" hgap="10.0" vgap="10.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="30.0">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -35,28 +35,27 @@
         <Spinner fx:id="maxVelocitySpinner" GridPane.columnIndex="1" GridPane.rowIndex="2" />
         <Spinner fx:id="fuelAmountSpinner" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         <Spinner fx:id="fuelConsumptionRateSpinner" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
-        <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5"
-              GridPane.valignment="CENTER">
+        <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
             <opaqueInsets>
-                <Insets/>
+                <Insets />
             </opaqueInsets>
             <GridPane.margin>
-                <Insets/>
+                <Insets />
             </GridPane.margin>
             <Button fx:id="confirmButton" mnemonicParsing="false" text="Confirm">
                 <padding>
-                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                 </padding>
                 <HBox.margin>
-                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                 </HBox.margin>
             </Button>
             <Button fx:id="cancelButton" mnemonicParsing="false" text="Cancel">
                 <padding>
-                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                 </padding>
                 <HBox.margin>
-                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                 </HBox.margin>
             </Button>
         </HBox>

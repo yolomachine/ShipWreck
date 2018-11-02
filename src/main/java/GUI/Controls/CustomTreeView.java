@@ -1,12 +1,16 @@
 package GUI.Controls;
 
+import Model.Route;
 import Model.Ship;
-import Model.ShipDB;
+import Model.ShipWreckDB;
+import Utils.Icons.Icons;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.util.StringConverter;
 
-public class CustomTreeView extends TreeView<InterfaceNode> {
+public class CustomTreeView extends TreeView<InteractiveNode> {
 
     private class CustomContextMenu {
         private final ContextMenu contextMenu;
@@ -15,7 +19,7 @@ public class CustomTreeView extends TreeView<InterfaceNode> {
         private final MenuItem delete;
 
         CustomContextMenu() {
-            this.insert = new MenuItem("Insert...");
+            this.insert = new MenuItem("Add...");
             this.edit = new MenuItem("Edit");
             this.delete = new MenuItem("Delete");
             this.contextMenu = new ContextMenu(insert, edit, delete);
@@ -45,18 +49,18 @@ public class CustomTreeView extends TreeView<InterfaceNode> {
 
     }
 
-    private class CustomTreeCell extends TextFieldTreeCell<InterfaceNode> {
+    private class CustomTreeCell extends TextFieldTreeCell<InteractiveNode> {
         private final CustomContextMenu contextMenu;
 
         CustomTreeCell(CustomContextMenu contextMenu) {
-            super(new StringConverter<InterfaceNode>() {
+            super(new StringConverter<InteractiveNode>() {
                 @Override
-                public String toString(InterfaceNode interfaceNode) {
-                    return interfaceNode.toString();
+                public String toString(InteractiveNode interactiveNode) {
+                    return interactiveNode.toString();
                 }
 
                 @Override
-                public InterfaceNode fromString(String s) {
+                public InteractiveNode fromString(String s) {
                     return null;
                 }
             });
@@ -70,69 +74,62 @@ public class CustomTreeView extends TreeView<InterfaceNode> {
             });
         }
 
-        private void prepareContextMenu(TreeItem<InterfaceNode> item) {
+        private void prepareContextMenu(TreeItem<InteractiveNode> item) {
             boolean root = item.getParent() == null;
+            boolean route = !root && item.getParent().getValue().getType() == InteractiveNode.Type.Ship;
             MenuItem insert = contextMenu.getInsertMenuItem();
             MenuItem edit = contextMenu.getEditMenuItem();
             MenuItem delete = contextMenu.getDeleteMenuItem();
-            delete.setDisable(root);
-            if (!root) {
-                edit.setOnAction(e -> {
-                    switch (item.getValue().getType()) {
-                        case Ship:
-                            Ship edited = ShipHandler.getInstance().editShip((Ship) item.getValue());
-                            if (edited != null) {
-                                item.setValue(edited);
-                            }
-                            break;
+            switch (item.getValue().getType()) {
+                case Root:
+                    insert.setText("Add new ship");
+                    break;
+                case Ship:
+                    insert.setText("Add new route");
+            }
+            insert.setDisable(route);
+            edit.setDisable(root || route);
+            delete.setDisable(root || route);
+            if (!route) {
+                if (!root) {
+                    edit.setOnAction(e -> {
+                        InteractiveNode edited = InteractiveNodeHandler.getInstance().edit(item.getValue());
+                        if (edited != null) {
+                            item.setValue(edited);
+                        }
+                        contextMenu.freeActionListeners();
+                    });
+                    delete.setOnAction(e -> {
+                        InteractiveNodeHandler.getInstance().delete(item.getValue());
+                        item.getParent().getChildren().remove(item);
+                        contextMenu.freeActionListeners();
+                    });
+                }
+                insert.setOnAction(e -> {
+                    InteractiveNode newItem = InteractiveNodeHandler.getInstance().create(item.getValue());
+                    if (newItem != null) {
+                        item.getChildren().add(new TreeItem<>(newItem));
                     }
-                    contextMenu.freeActionListeners();
-                });
-                delete.setOnAction(e -> {
-                    switch (item.getValue().getType()) {
-                        case Ship:
-                            ShipHandler.getInstance().deleteShip((Ship) item.getValue());
-                            break;
-                    }
-                    item.getParent().getChildren().remove(item);
                     contextMenu.freeActionListeners();
                 });
             }
-            insert.setOnAction(e -> {
-                switch (item.getValue().getType()) {
-                    case Root:
-                        Ship ship = ShipHandler.getInstance().createShip();
-                        if (ship != null) {
-                            item.getChildren().add(new TreeItem<>(ship));
-                        }
-                        break;
-                }
-                contextMenu.freeActionListeners();
-            });
         }
 
         @Override
-        public void updateItem(InterfaceNode item, boolean empty) {
+        public void updateItem(InteractiveNode item, boolean empty) {
             super.updateItem(item, empty);
             if (!empty) {
                 setContextMenu(contextMenu.getContextMenu());
                 setEditable(true);
-                if (item.getType() == InterfaceNode.Type.Root) {
-                    return;
-                }
-                final Tooltip tooltip = new Tooltip();
-                switch(item.getType()) {
+                setTooltip(item.getTooltip());
+                switch (item.getType()) {
                     case Ship:
-                        Ship ship = (Ship) item;
-                        tooltip.setText(
-                                String.format(
-                                        "Id: %d, Tonnage: %e, MaxVelocity: %e, FuelAmount: %e, FuelConsumptionRate: %e",
-                                        ship.getId(), ship.getTonnage(), ship.getMaxVelocity(), ship.getFuelAmount(), ship.getFuelConsumptionRate()
-                                )
-                        );
+                        setGraphic(Icons.getInstance().getShipIcon(20));
+                        break;
+                    case Route:
+                        setGraphic(Icons.getInstance().getRouteIcon(20));
                         break;
                 }
-                setTooltip(tooltip);
             }
         }
     }
@@ -148,9 +145,13 @@ public class CustomTreeView extends TreeView<InterfaceNode> {
 
         setCellFactory(p -> new CustomTreeCell(new CustomContextMenu()));
 
-        setRoot(new TreeItem<>(new InterfaceNode("Ships", InterfaceNode.Type.Root)));
-        for (Ship ship : ShipDB.getInstance().getShips()) {
-            getRoot().getChildren().add(new TreeItem<>(ship));
+        setRoot(new TreeItem<>(new InteractiveNode("Ships", InteractiveNode.Type.Root)));
+        for (Ship ship : ShipWreckDB.getInstance().getShips()) {
+            TreeItem<InteractiveNode> item = new TreeItem<>(ship);
+            for (Route route : ShipWreckDB.getInstance().getRoutes(ship.getId())) {
+                item.getChildren().add(new TreeItem<>(route));
+            }
+            getRoot().getChildren().add(item);
         }
         setPrefSize(200, 200);
     }

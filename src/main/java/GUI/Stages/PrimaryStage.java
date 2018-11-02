@@ -1,20 +1,21 @@
 package GUI.Stages;
 
-import Model.ShipDB;
+import Model.ShipWreckDB;
+import Utils.Icons.Icons;
 
 public class PrimaryStage extends CustomStage {
 
     public PrimaryStage() {
         super(
                 "src/main/java/GUI/MainView.fxml",
-                "file:res/icon.png",
+                Icons.getInstance().getShipIcon(),
                 "ShipWreck",
                 1000,
                 664,
-                () -> ShipDB.getInstance().establishConnection()
+                () -> ShipWreckDB.getInstance().establishConnection()
         );
         setOnCloseRequest(event -> {
-            ShipDB.getInstance().closeConnection();
+            ShipWreckDB.getInstance().closeConnection();
             System.exit(0);
         });
         show();

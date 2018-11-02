@@ -3,16 +3,14 @@ package Model;
 import java.sql.*;
 import java.util.ArrayList;
 
-// TO DO: Add query builder
-
-public class ShipDB {
+public class ShipWreckDB {
 
     private static int shipIdCounter = 0;
     private static int routeIdCounter = 0;
     private static Connection connection = null;
-    private static ShipDB ourInstance = new ShipDB();
+    private static ShipWreckDB ourInstance = new ShipWreckDB();
 
-    public static ShipDB getInstance() {
+    public static ShipWreckDB getInstance() {
         return ourInstance;
     }
 
@@ -24,7 +22,7 @@ public class ShipDB {
         return routeIdCounter;
     }
 
-    private ShipDB() {
+    private ShipWreckDB() {
         try {
             String driverName = "org.sqlite.JDBC";
             Class.forName(driverName);
@@ -50,6 +48,7 @@ public class ShipDB {
                     "CREATE TABLE IF NOT EXISTS Routes (\n"
                     + "    RouteId INTEGER PRIMARY KEY ASC NOT NULL,\n"
                     + "    ShipId  INTEGER REFERENCES Ships (ShipId),\n"
+                    + "    Name    VARCHAR (255),\n"
                     + "    Points  BLOB\n"
                     + ");\n"
             );
@@ -95,6 +94,29 @@ public class ShipDB {
             e.printStackTrace();
         }
         return ships;
+    }
+
+    public ArrayList<Route> getRoutes(int shipId) {
+        ArrayList<Route> routes = new ArrayList<>();
+        try {
+            String query = "SELECT * FROM Routes WHERE ShipId = ? ORDER BY RouteId ASC";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, shipId);
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                routes.add(
+                        new Route(
+                                result.getInt("RouteId"),
+                                result.getInt("ShipId"),
+                                result.getString("Name"),
+                                result.getBytes("Points")
+                        )
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return routes;
     }
 
     public void insertShip(Ship ship) {
@@ -166,22 +188,26 @@ public class ShipDB {
 
     public void insertRoute(Route route) {
         try {
+            route.calculate();
             String query =
                     "INSERT INTO Routes (\n"
                             + "    RouteId,\n"
                             + "    ShipId,\n"
+                            + "    Name,\n"
                             + "    Points\n"
                             + ")\n"
                             + "VALUES (\n"
                             + "    ?,\n"
                             + "    ?,\n"
+                            + "    ?,\n"
                             + "    ?\n"
                             + ")";
-            ++shipIdCounter;
+            ++routeIdCounter;
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, shipIdCounter);
+            statement.setInt(1, routeIdCounter);
             statement.setInt(2, route.getShipId());
-            statement.setBytes(3, route.toBlob());
+            statement.setString(3, route.toString());
+            statement.setBytes(4, route.toBlob());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

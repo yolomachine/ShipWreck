@@ -1,6 +1,7 @@
 package GUI.Stages;
 
 import Model.Ship;
+import Utils.Icons.Icons;
 import javafx.scene.Scene;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -10,7 +11,7 @@ public class ShipEditStage extends CustomModalStage<Ship> {
     public ShipEditStage() {
         super(
                 "src/main/java/GUI/ShipEditView.fxml",
-                "file:res/icon.png",
+                Icons.getInstance().getShipIcon(),
                 "Edit",
                 300,
                 300,

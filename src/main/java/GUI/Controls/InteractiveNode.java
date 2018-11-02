@@ -1,6 +1,8 @@
 package GUI.Controls;
 
-public class InterfaceNode {
+import javafx.scene.control.Tooltip;
+
+public class InteractiveNode {
 
     public enum Type {
         Root,
@@ -11,13 +13,17 @@ public class InterfaceNode {
     private Type type;
     private String text;
 
-    public InterfaceNode(String text, Type type) {
+    public InteractiveNode(String text, Type type) {
         this.type = type;
         this.text = text;
     }
 
     public Type getType() {
         return type;
+    }
+
+    public Tooltip getTooltip() {
+        return null;
     }
 
     @Override
