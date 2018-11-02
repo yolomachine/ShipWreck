@@ -1,6 +1,5 @@
 package GUI.StageControllers;
 
-import Model.Ship;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -67,7 +66,5 @@ public class ShipEditController implements Initializable {
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1000, 0, 100));
         fuelConsumptionRateSpinner.setValueFactory(
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1, 0, 0.01));
-
-
     }
 }

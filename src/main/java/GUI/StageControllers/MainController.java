@@ -1,6 +1,7 @@
 package GUI.StageControllers;
 
-import GUI.Controls.ShipListView;
+import GUI.Controls.CustomTreeView;
+import GUI.Controls.ShipsListView;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,7 +20,6 @@ import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapPane;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -35,9 +35,13 @@ public class MainController implements Initializable {
     @FXML
     private TitledPane shipsTitledPane;
 
+    @FXML
+    private TitledPane routesTitledPane;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        shipsTitledPane.setContent(new ShipListView());
+        shipsTitledPane.setContent(ShipsListView.getInstance());
+        routesTitledPane.setContent(CustomTreeView.getInstance());
 
         final SwingNode swingNode = new SwingNode();
         createSwingContent(swingNode, createMap());
@@ -58,7 +62,7 @@ public class MainController implements Initializable {
             SimpleFeatureSource featureSource = store.getFeatureSource();
 
             MapContent map = new MapContent();
-            map.setTitle("Quickstart");
+            map.setTitle("Map");
 
             Style style = SLD.createSimpleStyle(featureSource.getSchema());
             Layer layer = new FeatureLayer(featureSource, style);
@@ -96,4 +100,5 @@ public class MainController implements Initializable {
         }
         return mapPane;
     }
+
 }

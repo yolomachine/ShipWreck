@@ -1,9 +1,9 @@
 package GUI.Controls;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
@@ -17,13 +17,9 @@ public class ListViewRow<T> extends HBox {
         add(label);
     }
 
-    ListViewRow(String label) {
+    ListViewRow(String label, Node... nodes) {
         setLabel(label);
         add(this.label);
-    }
-
-    ListViewRow(String label, Node... nodes) {
-        this(label);
         addAll(nodes);
     }
 
@@ -34,8 +30,8 @@ public class ListViewRow<T> extends HBox {
         HBox.setHgrow(label, Priority.ALWAYS);
     }
 
-    public void setLabelAlignment(Pos pos) {
-        label.setAlignment(pos);
+    public void setTooltip(Tooltip tooltip) {
+        label.setTooltip(tooltip);
     }
 
     public void setTarget(T target) {
@@ -51,7 +47,7 @@ public class ListViewRow<T> extends HBox {
         setMargin(node, new Insets(2, 2, 2, 2));
     }
 
-    public void addAll(Node... nodes) {
+    private void addAll(Node... nodes) {
         for (Node node : nodes) {
             add(node);
         }

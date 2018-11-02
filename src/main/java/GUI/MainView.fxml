@@ -46,7 +46,7 @@
                             prefHeight="200.0"
                             prefWidth="200.0"
                             text="Ships"/>
-                <TitledPane fx:id="historyTitledPane"
+                <TitledPane fx:id="routesTitledPane"
                             animated="false"
                             maxHeight="1.7976931348623157E308"
                             maxWidth="-Infinity"
@@ -54,7 +54,7 @@
                             minWidth="0.0"
                             prefHeight="200.0"
                             prefWidth="200.0"
-                            text="History"/>
+                            text="Routes"/>
                 <TitledPane fx:id="meteodataTitledPane"
                             animated="false"
                             maxHeight="1.7976931348623157E308"
