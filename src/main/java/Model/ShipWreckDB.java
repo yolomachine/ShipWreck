@@ -1,5 +1,7 @@
 package Model;
 
+import org.geotools.map.Layer;
+
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -188,7 +190,11 @@ public class ShipWreckDB {
 
     public void insertRoute(Route route) {
         try {
-            route.calculate();
+            Layer layer = route.calculate();
+            if (layer == null) {
+                return;
+            }
+            Map.getInstance().addLayer(layer);
             String query =
                     "INSERT INTO Routes (\n"
                             + "    RouteId,\n"

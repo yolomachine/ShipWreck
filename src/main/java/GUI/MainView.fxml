@@ -13,13 +13,7 @@
       fx:controller="GUI.StageControllers.MainController">
     <MenuBar>
         <Menu mnemonicParsing="false" text="File">
-            <MenuItem mnemonicParsing="false" text="Close" />
-        </Menu>
-        <Menu mnemonicParsing="false" text="Edit">
-            <MenuItem mnemonicParsing="false" text="Delete" />
-        </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-            <MenuItem mnemonicParsing="false" text="About" />
+            <MenuItem mnemonicParsing="false" text="Save As..." onAction="#saveMap" />
         </Menu>
     </MenuBar>
     <HBox VBox.vgrow="ALWAYS">

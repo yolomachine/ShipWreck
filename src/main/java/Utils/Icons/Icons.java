@@ -17,15 +17,15 @@ public class Icons {
         return new ImageView(new Image("file:res/Icons/ship.png"));
     }
 
-    public ImageView getRouteIcon() {
-        return new ImageView(new Image("file:res/Icons/route.png"));
-    }
-
     public ImageView getShipIcon(int size) {
         ImageView icon = getShipIcon();
         icon.setFitWidth(size);
         icon.setFitHeight(size);
         return icon;
+    }
+
+    public ImageView getRouteIcon() {
+        return new ImageView(new Image("file:res/Icons/route.png"));
     }
 
     public ImageView getRouteIcon(int size) {

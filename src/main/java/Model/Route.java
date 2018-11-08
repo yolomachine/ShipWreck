@@ -4,20 +4,53 @@ import GUI.Controls.InteractiveNode;
 import Model.Geo.Point;
 import Model.Geo.PointArray;
 import javafx.scene.control.Tooltip;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultTransaction;
+import org.geotools.data.Transaction;
+import org.geotools.data.collection.ListFeatureCollection;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.SchemaException;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.geotools.map.FeatureLayer;
+import org.geotools.map.Layer;
+import org.geotools.styling.SLD;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Route extends InteractiveNode {
 
     private int id;
     private int shipId;
+    private String name;
     private Point start;
     private Point destination;
     private PointArray points;
 
     public Route(String name, Point start, Point destination) {
         super(name, Type.Route);
+        this.name = name;
         this.start = start;
         this.destination = destination;
     }
@@ -71,14 +104,113 @@ public class Route extends InteractiveNode {
         return points;
     }
 
-    public PointArray calculate() {
+    public Layer calculate() {
         points = new PointArray(start, destination);
-        // placeholder
-        return points;
+        return toShapefile();
     }
 
-    public void toShapefile() {
+    public Layer toShapefile() {
+        SimpleFeatureType featureType = Map.getInstance().getFeatureType();
 
+        List<SimpleFeature> features = new ArrayList<>();
+        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
+
+        for (Point point : points) {
+            featureBuilder.add(geometryFactory.createPoint(new Coordinate(point.getLon(), point.getLat())));
+            featureBuilder.add(name);
+            features.add(featureBuilder.buildFeature(null));
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(name);
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Shape files (*.shp)", "*.shp"));
+        File shapefile = fileChooser.showSaveDialog(new Stage());
+        if (shapefile == null) {
+            shapefile = new File(System.getProperty("user.dir") + "/routes/" + name + ".shp");
+        }
+        ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
+
+        HashMap<String, Serializable> params = new HashMap<>();
+        try {
+            params.put("url", shapefile.toURI().toURL());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        params.put("create spatial index", Boolean.TRUE);
+
+        ShapefileDataStore newDataStore = null;
+        try {
+            newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            newDataStore.createSchema(featureType);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Transaction transaction = new DefaultTransaction("create");
+
+        String typeName = null;
+        try {
+            typeName = newDataStore.getTypeNames()[0];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SimpleFeatureSource featureSource = null;
+        try {
+            featureSource = newDataStore.getFeatureSource(typeName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        FeatureCollection featureCollection = null;
+        if (featureSource instanceof SimpleFeatureStore) {
+            SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
+            SimpleFeatureCollection collection = new ListFeatureCollection(featureType, features);
+            featureStore.setTransaction(transaction);
+            try {
+                featureStore.addFeatures(collection);
+                transaction.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    transaction.rollback();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } finally {
+                try {
+                    transaction.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            featureCollection = collection;
+        } else {
+            System.out.println(typeName + " does not support read/write access");
+        }
+
+        Layer layer = null;
+        try {
+            layer = new FeatureLayer(
+                    featureCollection,
+                    SLD.createPointStyle(
+                            "circle",
+                            java.awt.Color.BLACK,
+                            java.awt.Color.ORANGE,
+                            1.0f,
+                            7.0f
+                    )
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return layer;
     }
 
     public byte[] toBlob() {
