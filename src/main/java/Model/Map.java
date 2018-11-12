@@ -3,7 +3,6 @@ package Model;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.simple.SimpleFeatureSource;
@@ -30,7 +29,8 @@ public class Map {
     private MapContent mapContent;
     private GTRenderer renderer;
     private JMapPane pane;
-    private SimpleFeatureType featureType;
+    private SimpleFeatureType pointType;
+    private SimpleFeatureType lineType;
 
     private static Map ourInstance = new Map();
 
@@ -54,10 +54,15 @@ public class Map {
 
             pane.setMinimumSize(new Dimension(width, height));
 
-            featureType =
+            pointType =
                     DataUtilities.createType(
                             "Location",
-                            "the_geom:Point:srid=4326, name:String"
+                            "the_geom:Point:srid=4326"
+                    );
+            lineType =
+                    DataUtilities.createType(
+                            "Locations",
+                            "the_geom:LineString:srid=4326, name:String"
                     );
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,12 +89,16 @@ public class Map {
         return height;
     }
 
-    public SimpleFeatureType getFeatureType() {
-        return featureType;
+    public SimpleFeatureType getPointType() {
+        return pointType;
     }
 
-    public void addLayer(Layer layer) {
-        mapContent.addLayer(layer);
+    public SimpleFeatureType getLineType() {
+        return lineType;
+    }
+
+    public boolean addLayer(Layer layer) {
+        return mapContent.addLayer(layer);
     }
 
     public void addLayer(String pathname) {
@@ -134,19 +143,4 @@ public class Map {
             }
         }
     }
-
-//    public Style createStyle(FeatureSource featureSource) {
-//        SimpleFeatureType schema = (SimpleFeatureType) featureSource.getSchema();
-//        Class geomType = schema.getGeometryDescriptor().getType().getBinding();
-//
-//        if (Polygon.class.isAssignableFrom(geomType)
-//                || MultiPolygon.class.isAssignableFrom(geomType)) {
-//            return createPolygonStyle();
-//        } else if (LineString.class.isAssignableFrom(geomType)
-//                || MultiLineString.class.isAssignableFrom(geomType)) {
-//            return createLineStyle();
-//        } else {
-//            return createPointStyle();
-//        }
-//    }
 }

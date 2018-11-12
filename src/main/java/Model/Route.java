@@ -4,11 +4,9 @@ import GUI.Controls.InteractiveNode;
 import Model.Geo.Point;
 import Model.Geo.PointArray;
 import javafx.scene.control.Tooltip;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 import org.geotools.data.collection.ListFeatureCollection;
@@ -18,7 +16,6 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.map.FeatureLayer;
@@ -26,10 +23,12 @@ import org.geotools.map.Layer;
 import org.geotools.styling.SLD;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -104,13 +103,24 @@ public class Route extends InteractiveNode {
         return points;
     }
 
-    public Layer calculate() {
+    public void calculate() {
         points = new PointArray(start, destination);
-        return toShapefile();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(name);
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Shape files (*.shp)", "*.shp"));
+        File file = fileChooser.showSaveDialog(new Stage());
+        if (file == null) {
+            file = new File(System.getProperty("user.dir") + "/routes/" + name + ".shp");
+        }
+        String pathname = file.getAbsolutePath();
+        Layer pointsLayer = createPointsLayer(pathname);
+        Layer linesLayer = createLinesLayer(pathname);
+        while(!Map.getInstance().addLayer(linesLayer)) { }
+        while(!Map.getInstance().addLayer(pointsLayer)) { }
     }
 
-    public Layer toShapefile() {
-        SimpleFeatureType featureType = Map.getInstance().getFeatureType();
+    private Layer createPointsLayer(String pathname) {
+        SimpleFeatureType featureType = Map.getInstance().getPointType();
 
         List<SimpleFeature> features = new ArrayList<>();
         GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
@@ -118,17 +128,83 @@ public class Route extends InteractiveNode {
 
         for (Point point : points) {
             featureBuilder.add(geometryFactory.createPoint(new Coordinate(point.getLon(), point.getLat())));
-            featureBuilder.add(name);
             features.add(featureBuilder.buildFeature(null));
         }
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle(name);
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Shape files (*.shp)", "*.shp"));
-        File shapefile = fileChooser.showSaveDialog(new Stage());
-        if (shapefile == null) {
-            shapefile = new File(System.getProperty("user.dir") + "/routes/" + name + ".shp");
+        FeatureCollection featureCollection = createShapefile(
+                String.format("%s%s.shp", pathname.substring(0, pathname.length() - 4), "_points"),
+                features,
+                featureType
+        );
+
+        Layer layer = null;
+        try {
+            layer = new FeatureLayer(
+                    featureCollection,
+                    SLD.createPointStyle(
+                            "circle",
+                            java.awt.Color.ORANGE,
+                            java.awt.Color.BLACK,
+                            1.0f,
+                            5.0f
+                    )
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        return layer;
+    }
+
+    public Layer createLinesLayer(String pathname) {
+        SimpleFeatureType featureType = Map.getInstance().getLineType();
+
+        List<SimpleFeature> features = new ArrayList<>();
+        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
+        WKTReader reader = new WKTReader( geometryFactory );
+        StringBuilder lineStringBuilder = new StringBuilder("LINESTRING(");
+
+        for (Point point : points) {
+            lineStringBuilder.append(point.toString());
+            if (point == points.get(points.size() - 1)) {
+                lineStringBuilder.append(")");
+            } else {
+                lineStringBuilder.append(", ");
+            }
+        }
+        LineString line = null;
+        try {
+            line = (LineString) reader.read(lineStringBuilder.toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        featureBuilder.add(line);
+        featureBuilder.add(name);
+        features.add(featureBuilder.buildFeature(null));
+
+        FeatureCollection featureCollection = createShapefile(
+                String.format("%s%s.shp", pathname.substring(0, pathname.length() - 4), "_lines"),
+                features,
+                featureType
+        );
+
+        Layer layer = null;
+        try {
+            layer = new FeatureLayer(
+                    featureCollection,
+                    SLD.createLineStyle(java.awt.Color.ORANGE, 1.0f)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return layer;
+    }
+
+    private FeatureCollection createShapefile(String pathname, List<SimpleFeature> features, SimpleFeatureType featureType) {
+        File shapefile = new File(pathname);
         ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
 
         HashMap<String, Serializable> params = new HashMap<>();
@@ -194,23 +270,7 @@ public class Route extends InteractiveNode {
             System.out.println(typeName + " does not support read/write access");
         }
 
-        Layer layer = null;
-        try {
-            layer = new FeatureLayer(
-                    featureCollection,
-                    SLD.createPointStyle(
-                            "circle",
-                            java.awt.Color.BLACK,
-                            java.awt.Color.ORANGE,
-                            1.0f,
-                            7.0f
-                    )
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return layer;
+        return featureCollection;
     }
 
     public byte[] toBlob() {

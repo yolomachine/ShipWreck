@@ -26,5 +26,9 @@ public class Point {
         return lon;
     }
 
+    public String toString() {
+        return String.format("%s %s", lon, lat);
+    }
+
 }
 

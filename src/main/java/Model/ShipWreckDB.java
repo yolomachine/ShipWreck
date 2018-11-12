@@ -190,11 +190,7 @@ public class ShipWreckDB {
 
     public void insertRoute(Route route) {
         try {
-            Layer layer = route.calculate();
-            if (layer == null) {
-                return;
-            }
-            Map.getInstance().addLayer(layer);
+            route.calculate();
             String query =
                     "INSERT INTO Routes (\n"
                             + "    RouteId,\n"
