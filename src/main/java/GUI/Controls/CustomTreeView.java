@@ -2,12 +2,10 @@ package GUI.Controls;
 
 import Model.Route;
 import Model.Ship;
-import Model.ShipWreckDB;
+import Model.Database.Database;
 import Utils.Icons.Icons;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.util.StringConverter;
 
 public class CustomTreeView extends TreeView<InteractiveNode> {
@@ -146,9 +144,9 @@ public class CustomTreeView extends TreeView<InteractiveNode> {
         setCellFactory(p -> new CustomTreeCell(new CustomContextMenu()));
 
         setRoot(new TreeItem<>(new InteractiveNode("Ships", InteractiveNode.Type.Root)));
-        for (Ship ship : ShipWreckDB.getInstance().getShips()) {
+        for (Ship ship : Database.getInstance().getShipsTable().selectAll()) {
             TreeItem<InteractiveNode> item = new TreeItem<>(ship);
-            for (Route route : ShipWreckDB.getInstance().getRoutes(ship.getId())) {
+            for (Route route : Database.getInstance().getRoutesTable().selectWhereId(ship.getId())) {
                 item.getChildren().add(new TreeItem<>(route));
             }
             getRoot().getChildren().add(item);

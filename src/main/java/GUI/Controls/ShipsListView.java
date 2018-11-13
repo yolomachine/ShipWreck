@@ -2,7 +2,7 @@ package GUI.Controls;
 
 import GUI.Stages.ShipEditStage;
 import Model.Ship;
-import Model.ShipWreckDB;
+import Model.Database.Database;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
@@ -32,7 +32,7 @@ public class ShipsListView extends ListView<ListViewRow<Ship>> {
     private ShipsListView() {
         super();
         setPrefSize(200, 200);
-        for (Ship ship : ShipWreckDB.getInstance().getShips()) {
+        for (Ship ship : Database.getInstance().getShipsTable().selectAll()) {
             addShipRow(ship, State.SyncWithDB);
         }
         getItems().add(new ShipRow("New...", new CustomButton("+", this::createShip)));
@@ -43,8 +43,8 @@ public class ShipsListView extends ListView<ListViewRow<Ship>> {
         if (ship == null) {
             return;
         }
-        ShipWreckDB.getInstance().insertShip(ship);
-        ship.setId(ShipWreckDB.getInstance().getShipIdCounter());
+        Database.getInstance().getShipsTable().insert(ship);
+        ship.setId(Database.getInstance().getShipsTable().getIdCounter());
         addShipRow(ship, State.AddNewRow);
     }
 
@@ -84,7 +84,7 @@ public class ShipsListView extends ListView<ListViewRow<Ship>> {
         target.setId(shipRow.getTarget().getId());
         shipRow.setTarget(target);
         shipRow.setLabel(target.toString());
-        ShipWreckDB.getInstance().updateShip(target);
+        Database.getInstance().getShipsTable().update(target);
     }
 
     private ActionDelegate editShip(final ShipRow shipRow) {
@@ -95,7 +95,7 @@ public class ShipsListView extends ListView<ListViewRow<Ship>> {
 
     private ActionDelegate removeShip(ShipRow shipRow) {
         return () -> {
-            ShipWreckDB.getInstance().deleteShip(shipRow.getTarget());
+            Database.getInstance().getShipsTable().delete(shipRow.getTarget());
             getItems().remove(shipRow);
         };
     }

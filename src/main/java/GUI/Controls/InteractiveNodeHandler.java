@@ -4,7 +4,7 @@ import GUI.Stages.RouteEditStage;
 import GUI.Stages.ShipEditStage;
 import Model.Route;
 import Model.Ship;
-import Model.ShipWreckDB;
+import Model.Database.Database;
 
 public class InteractiveNodeHandler {
 
@@ -24,8 +24,8 @@ public class InteractiveNodeHandler {
                 if (ship == null) {
                     return null;
                 }
-                ShipWreckDB.getInstance().insertShip(ship);
-                ship.setId(ShipWreckDB.getInstance().getShipIdCounter());
+                Database.getInstance().getShipsTable().insert(ship);
+                ship.setId(Database.getInstance().getShipsTable().getIdCounter());
                 node = ship;
                 break;
             case Ship:
@@ -34,8 +34,8 @@ public class InteractiveNodeHandler {
                     return null;
                 }
                 route.setShipId(((Ship) parent).getId());
-                ShipWreckDB.getInstance().insertRoute(route);
-                route.setId(ShipWreckDB.getInstance().getRouteIdCounter());
+                Database.getInstance().getRoutesTable().insert(route);
+                route.setId(Database.getInstance().getRoutesTable().getIdCounter());
                 node = route;
                 break;
         }
@@ -56,7 +56,7 @@ public class InteractiveNodeHandler {
                     return null;
                 }
                 ship.setId(((Ship) node).getId());
-                ShipWreckDB.getInstance().updateShip(ship);
+                Database.getInstance().getShipsTable().update(ship);
                 edited = ship;
                 break;
             case Route:
@@ -65,7 +65,7 @@ public class InteractiveNodeHandler {
                     return null;
                 }
                 route.setId(((Route) node).getId());
-                ShipWreckDB.getInstance().updateRoute(route);
+                Database.getInstance().getRoutesTable().update(route);
                 edited = route;
                 break;
         }
@@ -80,10 +80,10 @@ public class InteractiveNodeHandler {
             case Root:
                 return;
             case Ship:
-                ShipWreckDB.getInstance().deleteShip((Ship) node);
+                Database.getInstance().getShipsTable().delete((Ship) node);
                 break;
             case Route:
-                ShipWreckDB.getInstance().deleteRoute((Route) node);
+                Database.getInstance().getRoutesTable().delete((Route) node);
                 break;
         }
     }

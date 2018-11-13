@@ -28,7 +28,6 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         shipsTitledPane.setContent(ShipsListView.getInstance());
         routesTitledPane.setContent(CustomTreeView.getInstance());
-
         createMap();
     }
 
@@ -40,7 +39,6 @@ public class MainController implements Initializable {
     private void createMap() {
         final SwingNode swingNode = new SwingNode();
         createSwingContent(swingNode, Map.getInstance().getPane());
-
         mapScrollPane.setContent(swingNode);
     }
 

@@ -1,6 +1,6 @@
 package GUI.Stages;
 
-import Model.ShipWreckDB;
+import Model.Database.Database;
 import Utils.Icons.Icons;
 
 public class PrimaryStage extends CustomStage {
@@ -12,10 +12,10 @@ public class PrimaryStage extends CustomStage {
                 "ShipWreck",
                 1000,
                 664,
-                () -> ShipWreckDB.getInstance().establishConnection()
+                () -> Database.getInstance().establishConnection()
         );
         setOnCloseRequest(event -> {
-            ShipWreckDB.getInstance().closeConnection();
+            Database.getInstance().closeConnection();
             System.exit(0);
         });
         show();

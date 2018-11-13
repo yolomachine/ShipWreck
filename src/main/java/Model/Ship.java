@@ -22,7 +22,7 @@ public class Ship extends InteractiveNode {
         this.fuelConsumptionRate = fuelConsumptionRate;
     }
 
-    Ship(int id, String name, double tonnage, double maxVelocity, double fuelAmount, double fuelConsumptionRate) {
+    public Ship(int id, String name, double tonnage, double maxVelocity, double fuelAmount, double fuelConsumptionRate) {
         this(name, tonnage, maxVelocity, fuelAmount, fuelConsumptionRate);
         this.id = id;
     }
