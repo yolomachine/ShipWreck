@@ -38,8 +38,6 @@ public class MainController implements Initializable {
     }
 
     private void createMap() {
-        Map.getInstance().addLayer("res/Shapefiles/ne_50m_admin_0_sovereignty.shp");
-
         final SwingNode swingNode = new SwingNode();
         createSwingContent(swingNode, Map.getInstance().getPane());
 
