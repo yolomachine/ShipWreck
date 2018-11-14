@@ -1,15 +1,17 @@
 package Model.Database;
 
+import GUI.Controls.InteractiveNode;
 import com.healthmarketscience.sqlbuilder.*;
 import com.healthmarketscience.sqlbuilder.custom.mysql.MysObjects;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 import javafx.util.Pair;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public abstract class Table {
+public abstract class Table<T extends InteractiveNode> {
     protected DbTable table;
     protected DbColumn idColumn;
     protected int idCounter;
@@ -34,10 +36,43 @@ public abstract class Table {
         }
     }
 
-    protected abstract void addColumnsDefinitions();
-
     public int getIdCounter() {
         return idCounter;
+    }
+
+    protected abstract void addColumnsDefinitions();
+    protected abstract ArrayList<T> parseResultSet(ResultSet resultSet) throws SQLException;
+    protected abstract ArrayList<Pair<DbColumn, Object>> makeColumnValuePairs(T node);
+
+    protected int getMaxId() {
+        int id = 0;
+        String selectQuery =
+                new SelectQuery()
+                        .addColumns(idColumn)
+                        .addCondition(
+                                BinaryCondition.equalTo(
+                                        idColumn,
+                                        new Subquery(
+                                                new SelectQuery()
+                                                        .addCustomColumns(FunctionCall.max().addColumnParams(idColumn))
+                                                        .addFromTable(table)
+                                                        .validate()
+                                        )
+                                )
+                        )
+                        .validate()
+                        .toString();
+        try {
+            id = Database
+                    .getInstance()
+                    .getConnection()
+                    .createStatement()
+                    .executeQuery(selectQuery)
+                    .getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
     }
 
     protected String buildSelectQuery() {
@@ -83,34 +118,48 @@ public abstract class Table {
                 .toString();
     };
 
-    protected int getMaxId() {
-        int id = 0;
-        String selectQuery =
-                new SelectQuery()
-                        .addColumns(idColumn)
-                        .addCondition(
-                                BinaryCondition.equalTo(
-                                    idColumn,
-                                    new Subquery(
-                                            new SelectQuery()
-                                                    .addCustomColumns(FunctionCall.max().addColumnParams(idColumn))
-                                                    .addFromTable(table)
-                                                    .validate()
-                                    )
-                                )
-                        )
-                        .validate()
-                        .toString();
+    public abstract void insert(T node);
+    public abstract void update(T node);
+
+    public ArrayList<T> selectAll() {
         try {
-            id = Database
-                    .getInstance()
-                    .getConnection()
-                    .createStatement()
-                    .executeQuery(selectQuery)
-                    .getInt(1);
+            return parseResultSet(
+                    Database
+                            .getInstance()
+                            .getConnection()
+                            .createStatement()
+                            .executeQuery(buildSelectQuery())
+            );
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return id;
+        return null;
+    }
+
+    public ArrayList<T> selectWhereId(int id) {
+        try {
+            return parseResultSet(
+                    Database
+                            .getInstance()
+                            .getConnection()
+                            .createStatement()
+                            .executeQuery(buildSelectQuery(BinaryCondition.equalTo(idColumn, id)))
+            );
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void delete(T node) {
+        try {
+            Database
+                    .getInstance()
+                    .getConnection()
+                    .createStatement()
+                    .executeUpdate(buildDeleteQuery(BinaryCondition.equalTo(idColumn, node.getId())));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

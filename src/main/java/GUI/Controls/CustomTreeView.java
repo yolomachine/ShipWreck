@@ -146,7 +146,7 @@ public class CustomTreeView extends TreeView<InteractiveNode> {
         setRoot(new TreeItem<>(new InteractiveNode("Ships", InteractiveNode.Type.Root)));
         for (Ship ship : Database.getInstance().getShipsTable().selectAll()) {
             TreeItem<InteractiveNode> item = new TreeItem<>(ship);
-            for (Route route : Database.getInstance().getRoutesTable().selectWhereId(ship.getId())) {
+            for (Route route : Database.getInstance().getRoutesTable().selectWhereShipId(ship.getId())) {
                 item.getChildren().add(new TreeItem<>(route));
             }
             getRoot().getChildren().add(item);

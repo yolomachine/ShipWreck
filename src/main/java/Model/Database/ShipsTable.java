@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ShipsTable extends Table {
+public class ShipsTable extends Table<Ship> {
     private DbColumn name;
     private DbColumn tonnage;
     private DbColumn maxVelocity;
@@ -32,7 +32,8 @@ public class ShipsTable extends Table {
         idColumn.primaryKey();
     }
 
-    private ArrayList<Ship> parseResultSet(ResultSet resultSet) throws SQLException {
+    @Override
+    protected ArrayList<Ship> parseResultSet(ResultSet resultSet) throws SQLException {
         ArrayList<Ship> nodes = new ArrayList<>();
         while (resultSet.next()) {
             nodes.add(
@@ -49,7 +50,8 @@ public class ShipsTable extends Table {
         return nodes;
     }
 
-    private ArrayList<Pair<DbColumn, Object>> makeColumnValuePairs(Ship ship) {
+    @Override
+    protected ArrayList<Pair<DbColumn, Object>> makeColumnValuePairs(Ship ship) {
         ArrayList<Pair<DbColumn, Object>> insertPairs = new ArrayList<>();
         insertPairs.add(new Pair<>(idColumn, ship.getId()));
         insertPairs.add(new Pair<>(name, ship.toString()));
@@ -60,36 +62,7 @@ public class ShipsTable extends Table {
         return insertPairs;
     }
 
-    public ArrayList<Ship> selectAll() {
-        try {
-            return parseResultSet(
-                    Database
-                            .getInstance()
-                            .getConnection()
-                            .createStatement()
-                            .executeQuery(buildSelectQuery())
-            );
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public ArrayList<Ship> selectWhereId(int id) {
-        try {
-            return parseResultSet(
-                    Database
-                            .getInstance()
-                            .getConnection()
-                            .createStatement()
-                            .executeQuery(buildSelectQuery(BinaryCondition.equalTo(idColumn, id)))
-            );
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+    @Override
     public void insert(Ship ship) {
         ship.setId(++idCounter);
         try {
@@ -103,18 +76,7 @@ public class ShipsTable extends Table {
         }
     }
 
-    public void delete(Ship ship) {
-        try {
-            Database
-                    .getInstance()
-                    .getConnection()
-                    .createStatement()
-                    .executeUpdate(buildDeleteQuery(BinaryCondition.equalTo(idColumn, ship.getId())));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
+    @Override
     public void update(Ship ship) {
         try {
             Database

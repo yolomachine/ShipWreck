@@ -40,7 +40,6 @@ import java.util.List;
 
 public class Route extends InteractiveNode {
 
-    private int id;
     private int shipId;
     private String name;
     private Point start;

@@ -4,11 +4,8 @@ import GUI.Controls.InteractiveNode;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
 
-import java.util.ArrayList;
-
 public class Ship extends InteractiveNode {
 
-    private int id;
     private double tonnage;
     private double maxVelocity;
     private double fuelAmount;

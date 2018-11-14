@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class RoutesTable extends Table {
+public class RoutesTable extends Table<Route> {
     private DbColumn shipId;
     private DbColumn name;
     private DbColumn points;
@@ -30,7 +30,8 @@ public class RoutesTable extends Table {
         shipId.references("ShipId_fk", "Ships", "ShipId");
     }
 
-    private ArrayList<Route> parseResultSet(ResultSet resultSet) throws SQLException {
+    @Override
+    protected ArrayList<Route> parseResultSet(ResultSet resultSet) throws SQLException {
         ArrayList<Route> nodes = new ArrayList<>();
         while (resultSet.next()) {
             nodes.add(
@@ -45,7 +46,8 @@ public class RoutesTable extends Table {
         return nodes;
     }
 
-    private ArrayList<Pair<DbColumn, Object>> makeColumnValuePairs(Route route) {
+    @Override
+    protected ArrayList<Pair<DbColumn, Object>> makeColumnValuePairs(Route route) {
         ArrayList<Pair<DbColumn, Object>> insertPairs = new ArrayList<>();
         insertPairs.add(new Pair<>(idColumn, route.getId()));
         insertPairs.add(new Pair<>(shipId, route.getShipId()));
@@ -54,36 +56,7 @@ public class RoutesTable extends Table {
         return insertPairs;
     }
 
-    public ArrayList<Route> selectAll() {
-        try {
-            return parseResultSet(
-                    Database
-                            .getInstance()
-                            .getConnection()
-                            .createStatement()
-                            .executeQuery(buildSelectQuery())
-            );
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public ArrayList<Route> selectWhereId(int id) {
-        try {
-            return parseResultSet(
-                    Database
-                            .getInstance()
-                            .getConnection()
-                            .createStatement()
-                            .executeQuery(buildSelectQuery(BinaryCondition.equalTo(shipId, id)))
-            );
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+    @Override
     public void insert(Route route){
         route.calculate();
         route.setId(++idCounter);
@@ -102,18 +75,7 @@ public class RoutesTable extends Table {
         }
     }
 
-    public void delete(Route route) {
-        try {
-            Database
-                    .getInstance()
-                    .getConnection()
-                    .createStatement()
-                    .executeUpdate(buildDeleteQuery(BinaryCondition.equalTo(idColumn, route.getId())));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
+    @Override
     public void update(Route route) {
         try {
             PreparedStatement statement =
@@ -129,5 +91,20 @@ public class RoutesTable extends Table {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<Route> selectWhereShipId(int id) {
+        try {
+            return parseResultSet(
+                    Database
+                            .getInstance()
+                            .getConnection()
+                            .createStatement()
+                            .executeQuery(buildSelectQuery(BinaryCondition.equalTo(shipId, id)))
+            );
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

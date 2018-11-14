@@ -10,12 +10,26 @@ public class InteractiveNode {
         Route;
     }
 
+    protected int id = -1;
     private Type type;
     private String text;
 
     public InteractiveNode(String text, Type type) {
         this.type = type;
         this.text = text;
+    }
+
+    public InteractiveNode(int id, String text, Type type) {
+        this(text, type);
+        this.id = id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Type getType() {
