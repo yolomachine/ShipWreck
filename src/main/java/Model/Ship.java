@@ -5,7 +5,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
 
 public class Ship extends InteractiveNode {
-
     private double tonnage;
     private double maxVelocity;
     private double fuelAmount;
@@ -67,8 +66,8 @@ public class Ship extends InteractiveNode {
     @Override
     public Tooltip getTooltip() {
         String tooltipText = String.format(
-                "Id: %d; Tonnage: %.2f; Max velocity: %.2f; Fuel amount: %.2f",
-                id, tonnage, maxVelocity, fuelAmount
+                "Tonnage: %.2f; Max velocity: %.2f; Fuel amount: %.2f",
+                tonnage, maxVelocity, fuelAmount
         );
         Tooltip tooltip = new Tooltip(tooltipText);
         tooltip.setFont(new Font(24));

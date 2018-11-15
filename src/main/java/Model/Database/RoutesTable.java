@@ -34,14 +34,14 @@ public class RoutesTable extends Table<Route> {
     protected ArrayList<Route> parseResultSet(ResultSet resultSet) throws SQLException {
         ArrayList<Route> nodes = new ArrayList<>();
         while (resultSet.next()) {
-            nodes.add(
-                    new Route(
-                            resultSet.getInt("RouteId"),
-                            resultSet.getInt("ShipId"),
-                            resultSet.getString("Name"),
-                            resultSet.getBytes("Points")
-                    )
+            Route route = new Route(
+                    resultSet.getInt("RouteId"),
+                    resultSet.getInt("ShipId"),
+                    resultSet.getString("Name"),
+                    resultSet.getBytes("Points")
             );
+            route.toShapefile();
+            nodes.add(route);
         }
         return nodes;
     }
@@ -58,7 +58,6 @@ public class RoutesTable extends Table<Route> {
 
     @Override
     public void insert(Route route){
-        route.calculate();
         route.setId(++idCounter);
         try {
             PreparedStatement statement =
@@ -82,10 +81,12 @@ public class RoutesTable extends Table<Route> {
                     Database
                             .getInstance()
                             .getConnection()
-                            .prepareStatement(buildUpdateQuery(
-                                    makeColumnValuePairs(route),
-                                    BinaryCondition.equalTo(idColumn, route.getId())
-                            ));
+                            .prepareStatement(
+                                    buildUpdateQuery(
+                                            makeColumnValuePairs(route),
+                                            BinaryCondition.equalTo(idColumn, route.getId())
+                                    ).replace("'?'", "?")
+                            );
             statement.setBytes(1, route.toBlob());
             statement.executeUpdate();
         } catch (SQLException e) {

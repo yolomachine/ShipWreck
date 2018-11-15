@@ -33,7 +33,8 @@ public class InteractiveNodeHandler {
                 if (route == null) {
                     return null;
                 }
-                route.setShipId(((Ship) parent).getId());
+                route.setShipId(parent.getId());
+                route.calculate();
                 Database.getInstance().getRoutesTable().insert(route);
                 route.setId(Database.getInstance().getRoutesTable().getIdCounter());
                 node = route;
@@ -42,7 +43,7 @@ public class InteractiveNodeHandler {
         return node;
     }
 
-    InteractiveNode edit(InteractiveNode node) {
+    InteractiveNode edit(InteractiveNode parent, InteractiveNode node) {
         if (node == null) {
             return null;
         }
@@ -55,7 +56,8 @@ public class InteractiveNodeHandler {
                 if (ship == null) {
                     return null;
                 }
-                ship.setId(((Ship) node).getId());
+                ship.setId(node.getId());
+                node.invalidate();
                 Database.getInstance().getShipsTable().update(ship);
                 edited = ship;
                 break;
@@ -64,7 +66,12 @@ public class InteractiveNodeHandler {
                 if (route == null) {
                     return null;
                 }
-                route.setId(((Route) node).getId());
+                route.setId(node.getId());
+                route.setShipId(parent.getId());
+                route.setPointsLayer(((Route) node).getPointsLayer());
+                route.setLinesLayer(((Route) node).getLinesLayer());
+                route.calculate();
+                node.invalidate();
                 Database.getInstance().getRoutesTable().update(route);
                 edited = route;
                 break;
@@ -80,9 +87,11 @@ public class InteractiveNodeHandler {
             case Root:
                 return;
             case Ship:
+                node.invalidate();
                 Database.getInstance().getShipsTable().delete((Ship) node);
                 break;
             case Route:
+                node.invalidate();
                 Database.getInstance().getRoutesTable().delete((Route) node);
                 break;
         }

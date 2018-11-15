@@ -86,23 +86,23 @@ public class CustomTreeView extends TreeView<InteractiveNode> {
                     insert.setText("Add new route");
             }
             insert.setDisable(route);
-            edit.setDisable(root || route);
-            delete.setDisable(root || route);
+            edit.setDisable(root);
+            delete.setDisable(root);
+            if (!root) {
+                edit.setOnAction(e -> {
+                    InteractiveNode edited = InteractiveNodeHandler.getInstance().edit(item.getParent().getValue(), item.getValue());
+                    if (edited != null) {
+                        item.setValue(edited);
+                    }
+                    contextMenu.freeActionListeners();
+                });
+                delete.setOnAction(e -> {
+                    InteractiveNodeHandler.getInstance().delete(item.getValue());
+                    item.getParent().getChildren().remove(item);
+                    contextMenu.freeActionListeners();
+                });
+            }
             if (!route) {
-                if (!root) {
-                    edit.setOnAction(e -> {
-                        InteractiveNode edited = InteractiveNodeHandler.getInstance().edit(item.getValue());
-                        if (edited != null) {
-                            item.setValue(edited);
-                        }
-                        contextMenu.freeActionListeners();
-                    });
-                    delete.setOnAction(e -> {
-                        InteractiveNodeHandler.getInstance().delete(item.getValue());
-                        item.getParent().getChildren().remove(item);
-                        contextMenu.freeActionListeners();
-                    });
-                }
                 insert.setOnAction(e -> {
                     InteractiveNode newItem = InteractiveNodeHandler.getInstance().create(item.getValue());
                     if (newItem != null) {

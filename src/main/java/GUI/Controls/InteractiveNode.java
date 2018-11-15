@@ -11,18 +11,20 @@ public class InteractiveNode {
     }
 
     protected int id = -1;
-    private Type type;
-    private String text;
+    protected Type type;
+    protected String name;
 
-    public InteractiveNode(String text, Type type) {
+    public InteractiveNode(String name, Type type) {
         this.type = type;
-        this.text = text;
+        this.name  = name;
     }
 
-    public InteractiveNode(int id, String text, Type type) {
-        this(text, type);
+    public InteractiveNode(int id, String name, Type type) {
+        this(name, type);
         this.id = id;
     }
+
+    public void invalidate() { }
 
     public void setId(int id) {
         this.id = id;
@@ -42,7 +44,7 @@ public class InteractiveNode {
 
     @Override
     public String toString() {
-        return text;
+        return name;
     }
 
 }

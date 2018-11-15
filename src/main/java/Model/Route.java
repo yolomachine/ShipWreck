@@ -34,21 +34,23 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
 public class Route extends InteractiveNode {
-
     private int shipId;
-    private String name;
     private Point start;
     private Point destination;
     private PointArray points;
+    private Layer pointsLayer;
+    private Layer linesLayer;
 
     public Route(String name, Point start, Point destination) {
         super(name, Type.Route);
-        this.name = name;
         this.start = start;
         this.destination = destination;
     }
@@ -82,6 +84,14 @@ public class Route extends InteractiveNode {
         this.destination = destination;
     }
 
+    public void setPointsLayer(Layer pointsLayer) {
+        this.pointsLayer = pointsLayer;
+    }
+
+    public void setLinesLayer(Layer linesLayer) {
+        this.linesLayer = linesLayer;
+    }
+
     public int getId() {
         return id;
     }
@@ -102,6 +112,14 @@ public class Route extends InteractiveNode {
         return points;
     }
 
+    public Layer getPointsLayer() {
+        return pointsLayer;
+    }
+
+    public Layer getLinesLayer() {
+        return linesLayer;
+    }
+
     public void calculate() {
         points = new PointArray(start, destination);
         FileChooser fileChooser = new FileChooser();
@@ -109,18 +127,40 @@ public class Route extends InteractiveNode {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Shape files (*.shp)", "*.shp"));
         File file = fileChooser.showSaveDialog(new Stage());
         if (file == null) {
-            file = new File(System.getProperty("user.dir") + "/routes/" + name + ".shp");
+            toShapefile();
+        } else {
+            toShapefile(file.getAbsolutePath());
         }
-        String pathname = file.getAbsolutePath();
-        Layer pointsLayer = createPointsLayer(pathname);
-        Layer linesLayer = createLinesLayer(pathname);
+    }
+
+    @Override
+    public void invalidate() {
+        while (pointsLayer != null && Map.getInstance().removeLayer(pointsLayer)) { }
+        while (linesLayer != null && Map.getInstance().removeLayer(linesLayer)) { }
+        File dir = new File(System.getProperty("user.dir") + "/routes/" + name);
+        try {
+            deleteDirectoryStream(dir.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void toShapefile(String pathname) {
+        pointsLayer = createPointsLayer(pathname);
+        linesLayer = createLinesLayer(pathname);
         while(!Map.getInstance().addLayer(linesLayer)) { }
         while(!Map.getInstance().addLayer(pointsLayer)) { }
     }
 
+    public void toShapefile() {
+        File dir = new File(System.getProperty("user.dir") + "/routes/" + name + "/");
+        dir.mkdirs();
+        File file = new File(dir,name + ".shp");
+        toShapefile(file.getAbsolutePath());
+    }
+
     private Layer createPointsLayer(String pathname) {
         SimpleFeatureType featureType = Map.getInstance().getPointType();
-
         List<SimpleFeature> features = new ArrayList<>();
         GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
@@ -297,11 +337,18 @@ public class Route extends InteractiveNode {
     @Override
     public Tooltip getTooltip() {
         String tooltipText = String.format(
-                "Id: %d; Start { Lat: %.2f, Lon: %.2f }; Destination { Lat: %.2f, Lon: %.2f }",
-                id, start.getLat(), start.getLon(), destination.getLat(), destination.getLon()
+                "Start { Lat: %.2f, Lon: %.2f }; Destination { Lat: %.2f, Lon: %.2f }",
+                start.getLat(), start.getLon(), destination.getLat(), destination.getLon()
         );
         Tooltip tooltip = new Tooltip(tooltipText);
         tooltip.setFont(new Font(24));
         return tooltip;
+    }
+
+    void deleteDirectoryStream(Path path) throws IOException {
+        Files.walk(path)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 }

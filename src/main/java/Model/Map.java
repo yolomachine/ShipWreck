@@ -157,6 +157,10 @@ public class Map {
         return mapContent.addLayer(layer);
     }
 
+    public boolean removeLayer(Layer layer) {
+        return mapContent.removeLayer(layer);
+    }
+
     public void addLayer(String pathname) {
         try {
             File file = new File(pathname);

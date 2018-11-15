@@ -24,13 +24,13 @@ public abstract class Table<T extends InteractiveNode> {
                         .addCustomization(MysObjects.IF_NOT_EXISTS_TABLE)
                         .validate()
                         .toString();
-        idCounter = getMaxId();
         try {
             Database
                     .getInstance()
                     .getConnection()
                     .createStatement()
                     .execute(createTableQuery);
+            idCounter = getMaxId();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -69,9 +69,7 @@ public abstract class Table<T extends InteractiveNode> {
                     .createStatement()
                     .executeQuery(selectQuery)
                     .getInt(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException ignored) { }
         return id;
     }
 
