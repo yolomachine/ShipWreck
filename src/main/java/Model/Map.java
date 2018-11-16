@@ -1,6 +1,7 @@
 package Model;
 
 import Model.Geo.Point;
+import com.healthmarketscience.common.util.Tuple2;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.geotools.data.*;
@@ -34,6 +35,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 
 public class Map {
     private int width;
@@ -47,6 +49,39 @@ public class Map {
     private FilterFactory2 ff;
     private GeometryFactory gf;
     private FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+
+    private static final String mainLayerPathname       = "res/Shapefiles/ne_50m_admin_0_sovereignty.shp";
+    private static final String bathymetry10000Pathname = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_A_10000.shp";
+    private static final String bathymetry9000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_B_9000.shp";
+    private static final String bathymetry8000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_C_8000.shp";
+    private static final String bathymetry7000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_D_7000.shp";
+    private static final String bathymetry6000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_E_6000.shp";
+    private static final String bathymetry5000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_F_5000.shp";
+    private static final String bathymetry4000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_G_4000.shp";
+    private static final String bathymetry3000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_H_3000.shp";
+    private static final String bathymetry2000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_I_2000.shp";
+    private static final String bathymetry1000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_J_1000.shp";
+    private static final String bathymetry200Pathname   = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_K_200.shp";
+    private static final String bathymetry0Pathname     = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_L_0.shp";
+
+    private static final ArrayList<Tuple2<String, Style>> styles;
+    static
+    {
+        styles = new ArrayList<>();
+        styles.add(new Tuple2<>(mainLayerPathname, SLD.createPolygonStyle(hex2Rgb("#F5D760"), hex2Rgb("#F5D76E"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry0Pathname,     SLD.createPolygonStyle(hex2Rgb("#FFFFFF"), hex2Rgb("#FFFFFF"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry200Pathname,   SLD.createPolygonStyle(hex2Rgb("#000000"), hex2Rgb("#E3ECFC"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry1000Pathname,  SLD.createPolygonStyle(hex2Rgb("#C7D8F8"), hex2Rgb("#C7D8F8"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry2000Pathname,  SLD.createPolygonStyle(hex2Rgb("#AAC5F5"), hex2Rgb("#AAC5F5"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry3000Pathname,  SLD.createPolygonStyle(hex2Rgb("#8EB2F2"), hex2Rgb("#8EB2F2"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry4000Pathname,  SLD.createPolygonStyle(hex2Rgb("#729FEF"), hex2Rgb("#729FEF"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry5000Pathname,  SLD.createPolygonStyle(hex2Rgb("#5B87E4"), hex2Rgb("#5B87E4"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry6000Pathname,  SLD.createPolygonStyle(hex2Rgb("#496CD2"), hex2Rgb("#496CD2"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry7000Pathname,  SLD.createPolygonStyle(hex2Rgb("#3751C0"), hex2Rgb("#3751C0"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry8000Pathname,  SLD.createPolygonStyle(hex2Rgb("#2436AF"), hex2Rgb("#2436AF"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry9000Pathname,  SLD.createPolygonStyle(hex2Rgb("#121B9D"), hex2Rgb("#121B9D"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry10000Pathname, SLD.createPolygonStyle(hex2Rgb("#00008B"), hex2Rgb("#00008B"), 1.0f)));
+    }
 
     private static Map ourInstance = new Map();
 
@@ -84,7 +119,6 @@ public class Map {
             e.printStackTrace();
         }
 
-        String mainLayerPathname = "res/Shapefiles/ne_50m_admin_0_sovereignty.shp";
         File mapShapeFile = new File(mainLayerPathname);
         ShapefileDataStore dataStore = null;
         try {
@@ -109,7 +143,9 @@ public class Map {
         ff = CommonFactoryFinder.getFilterFactory2(hints);
         gf = JTSFactoryFinder.getGeometryFactory(hints);
 
-        addLayer(mainLayerPathname);
+        for (Tuple2<String, Style> style : styles) {
+            while(!addLayer(style.get0(), style.get1())) {}
+        }
     }
 
     public void setWidth(int width) {
@@ -157,11 +193,8 @@ public class Map {
         return mapContent.addLayer(layer);
     }
 
-    public boolean removeLayer(Layer layer) {
-        return mapContent.removeLayer(layer);
-    }
-
-    public void addLayer(String pathname) {
+    public boolean addLayer(String pathname) {
+        Layer layer = null;
         try {
             File file = new File(pathname);
 
@@ -169,11 +202,31 @@ public class Map {
             SimpleFeatureSource featureSource = store.getFeatureSource();
 
             Style style = SLD.createSimpleStyle(featureSource.getSchema());
-            Layer layer = new FeatureLayer(featureSource, style);
-            mapContent.addLayer(layer);
+            layer = new FeatureLayer(featureSource, style);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return mapContent.addLayer(layer);
+
+    }
+
+    public boolean addLayer(String pathname, Style style) {
+        Layer layer = null;
+        try {
+            File file = new File(pathname);
+
+            FileDataStore store = FileDataStoreFinder.getDataStore(file);
+            SimpleFeatureSource featureSource = store.getFeatureSource();
+
+            layer = new FeatureLayer(featureSource, style);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mapContent.addLayer(layer);
+    }
+
+    public boolean removeLayer(Layer layer) {
+        return mapContent.removeLayer(layer);
     }
 
     public void save() {
@@ -202,5 +255,18 @@ public class Map {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     *
+     * @param colorStr e.g. "#FFFFFF"
+     * @return java.awt.Color
+     */
+    public static Color hex2Rgb(String colorStr) {
+        return new Color(
+                Integer.valueOf(colorStr.substring(1, 3), 16),
+                Integer.valueOf(colorStr.substring(3, 5), 16),
+                Integer.valueOf(colorStr.substring(5, 7), 16)
+        );
     }
 }

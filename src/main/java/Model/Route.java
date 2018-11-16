@@ -29,6 +29,7 @@ import org.locationtech.jts.io.WKTReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -181,9 +182,9 @@ public class Route extends InteractiveNode {
             layer = new FeatureLayer(
                     featureCollection,
                     SLD.createPointStyle(
-                            "circle",
-                            java.awt.Color.ORANGE,
-                            java.awt.Color.BLACK,
+                            "square",
+                            Color.MAGENTA,
+                            Color.BLACK,
                             1.0f,
                             5.0f
                     )
@@ -233,7 +234,7 @@ public class Route extends InteractiveNode {
         try {
             layer = new FeatureLayer(
                     featureCollection,
-                    SLD.createLineStyle(java.awt.Color.ORANGE, 1.0f)
+                    SLD.createLineStyle(Color.MAGENTA, 1.0f)
             );
         } catch (Exception e) {
             e.printStackTrace();
