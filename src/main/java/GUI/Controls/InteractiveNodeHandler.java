@@ -20,7 +20,7 @@ public class InteractiveNodeHandler {
         InteractiveNode node = null;
         switch (parent.getType()) {
             case Root:
-                Ship ship = openShipEditStage();
+                Ship ship = openShipEditStage(null);
                 if (ship == null) {
                     return null;
                 }
@@ -29,7 +29,7 @@ public class InteractiveNodeHandler {
                 node = ship;
                 break;
             case Ship:
-                Route route = openRouteEditStage();
+                Route route = openRouteEditStage(null);
                 if (route == null) {
                     return null;
                 }
@@ -52,7 +52,7 @@ public class InteractiveNodeHandler {
             case Root:
                 return null;
             case Ship:
-                Ship ship = openShipEditStage();
+                Ship ship = openShipEditStage((Ship) node);
                 if (ship == null) {
                     return null;
                 }
@@ -62,7 +62,7 @@ public class InteractiveNodeHandler {
                 edited = ship;
                 break;
             case Route:
-                Route route = openRouteEditStage();
+                Route route = openRouteEditStage((Route) node);
                 if (route == null) {
                     return null;
                 }
@@ -97,13 +97,15 @@ public class InteractiveNodeHandler {
         }
     }
 
-    private Ship openShipEditStage() {
-        ShipEditStage stage = new ShipEditStage();
+    private Ship openShipEditStage(Ship ship) {
+        ShipEditStage stage = new ShipEditStage(ship);
+        stage.showAndWait();
         return stage.getData();
     }
 
-    private Route openRouteEditStage() {
-        RouteEditStage stage = new RouteEditStage();
+    private Route openRouteEditStage(Route route) {
+        RouteEditStage stage = new RouteEditStage(route);
+        stage.showAndWait();
         return stage.getData();
     }
 
