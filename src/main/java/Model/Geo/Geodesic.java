@@ -91,16 +91,19 @@ public class Geodesic {
             new_reverse_bearing -= Math.PI * 2;
         }
 
+        double azimuth_from = Math.abs(180.0 - Math.toDegrees(new_reverse_bearing));
+        double azimuth_to = Math.toDegrees(bearing) > 180.0 ? 360.0 - azimuth_from : azimuth_from;
+
         return new DirectProblemSolutionBinding(
-                new Point(Math.toDegrees(new_position.getLat()),Math.toDegrees(new_position.getLon())),
-                Math.abs(180 - Math.toDegrees(new_reverse_bearing)),
-                Math.toDegrees(new_reverse_bearing)
+                new Point(Math.toDegrees(new_position.getLat()), Math.toDegrees(new_position.getLon())),
+                azimuth_to,
+                azimuth_from
         );
     }
 
     public static InverseProblemSolutionBinding solveInverseProblem(Point start, Point destination) {
         if ((Math.abs(start.getLat() - destination.getLat()) < 1e-8) && (Math.abs(start.getLon() - destination.getLon()) < 1e-8)) {
-            new InverseProblemSolutionBinding(0.0D, 0.0D, 0.0D, 0.0D);
+            new InverseProblemSolutionBinding(0.0D, 0.0D, 0.0D);
         }
 
         Point point1 = start.toRadians();
@@ -114,11 +117,11 @@ public class Geodesic {
         double sin_sigma = 0.0d;
         double cos_sigma = 0.0d;
         double cos2sigma_m = 0.0d;
-        double delta = point2.getLon() - point1.getLon();
+        double delta = point2.getLon() - point1.getLon() + 1e-7;
         double last = -1000.0d;
         double L = delta;
 
-        while (Math.abs(delta) < 1e-6 && Math.abs(last / delta - 1) > 1e-12) {
+        while (Math.abs(delta) > 1e-8 && Math.abs(last / delta - 1) > 1e-12) {
             sin_sigma = Math.sqrt(Math.pow(Math.cos(U2) * Math.sin(delta), 2)
                     + Math.pow((Math.cos(U1) * Math.sin(U2)
                     - Math.sin(U1) * Math.cos(U2) * Math.cos(delta)), 2));
@@ -178,8 +181,7 @@ public class Geodesic {
         return new InverseProblemSolutionBinding(
                 s,
                 Math.toDegrees(azimuth_to),
-                Math.abs(180.0 - Math.toDegrees(azimuth_from)),
-                Math.toDegrees(azimuth_from)
+                Math.abs(180.0 - Math.toDegrees(azimuth_from))
         );
     }
 }

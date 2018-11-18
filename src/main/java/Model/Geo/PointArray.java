@@ -10,4 +10,10 @@ public class PointArray extends ArrayList<Point> {
         this.addAll(Arrays.asList(points));
     }
 
+    public void add(PointArray points) {
+        for (Point point : points) {
+            this.add(point);
+        }
+    }
+
 }

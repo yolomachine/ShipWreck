@@ -1,12 +1,18 @@
 package GUI.Controls;
 
+import Model.Geo.Point;
+import Model.Geo.PointArray;
+import Model.Map;
 import Model.Route;
 import Model.Ship;
 import Model.Database.Database;
 import Utils.Icons.Icons;
 import javafx.scene.control.*;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.util.StringConverter;
+
+import java.awt.*;
 
 public class CustomTreeView extends TreeView<InteractiveNode> {
 
@@ -151,6 +157,20 @@ public class CustomTreeView extends TreeView<InteractiveNode> {
             }
             getRoot().getChildren().add(item);
         }
+
+//        Route testGrid = new Route("grid", new Point(-180, 90), new Point(180, -90), Color.BLACK.getRGB());
+//        PointArray gridPoints = new PointArray();
+//        for (float lat = -180; lat <= 180; lat += 1) {
+//            for (float lon = 90; lon >= -90; lon -= 1) {
+//                Point point = new Point(lat, lon);
+//                if (Map.getInstance().isWater(point)) {
+//                    gridPoints.add(point);
+//                }
+//            }
+//        }
+//        testGrid.setPoints(gridPoints);
+//        testGrid.toShapefile();
+
         setPrefSize(200, 200);
     }
 }

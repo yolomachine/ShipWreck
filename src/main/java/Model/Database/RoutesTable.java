@@ -14,6 +14,7 @@ public class RoutesTable extends Table<Route> {
     private DbColumn shipId;
     private DbColumn name;
     private DbColumn points;
+    private DbColumn color;
 
     public RoutesTable() {
         super("Routes");
@@ -25,6 +26,7 @@ public class RoutesTable extends Table<Route> {
         shipId = table.addColumn("ShipId", "integer", null);
         name = table.addColumn("Name", "varchar", 255);
         points = table.addColumn("Points", "blob", null);
+        color = table.addColumn("Color", "integer", null);
 
         idColumn.primaryKey();
         shipId.references("ShipId_fk", "Ships", "ShipId");
@@ -38,7 +40,8 @@ public class RoutesTable extends Table<Route> {
                     resultSet.getInt("RouteId"),
                     resultSet.getInt("ShipId"),
                     resultSet.getString("Name"),
-                    resultSet.getBytes("Points")
+                    resultSet.getBytes("Points"),
+                    resultSet.getInt("Color")
             );
             route.toShapefile();
             nodes.add(route);
@@ -53,6 +56,7 @@ public class RoutesTable extends Table<Route> {
         insertPairs.add(new Pair<>(shipId, route.getShipId()));
         insertPairs.add(new Pair<>(name, route.toString()));
         insertPairs.add(new Pair<>(points, "?"));
+        insertPairs.add(new Pair<>(color, route.getColor().getRGB()));
         return insertPairs;
     }
 

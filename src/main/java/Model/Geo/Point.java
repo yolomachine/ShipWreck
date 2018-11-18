@@ -31,11 +31,11 @@ public class Point {
     }
 
     public Point toRadians() {
-        return new Point(Math.toRadians(getLon()), Math.toRadians(getLat()));
+        return new Point(Math.toRadians(getLat()), Math.toRadians(getLon()));
     }
 
     public Point toDegrees() {
-        return new Point(Math.toDegrees(getLon()), Math.toDegrees(getLat()));
+        return new Point(Math.toDegrees(getLat()), Math.toDegrees(getLon()));
     }
 
     @Override

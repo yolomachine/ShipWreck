@@ -1,8 +1,8 @@
 package Model;
 
 import GUI.Controls.InteractiveNode;
+import Model.Geo.*;
 import Model.Geo.Point;
-import Model.Geo.PointArray;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -49,22 +49,25 @@ public class Route extends InteractiveNode {
     private PointArray points;
     private Layer pointsLayer;
     private Layer linesLayer;
+    private Color color;
 
-    public Route(String name, Point start, Point destination) {
+    public Route(String name, Point start, Point destination, int color) {
         super(name, Type.Route);
         this.start = start;
         this.destination = destination;
+        this.color = new Color(color);
     }
 
-    public Route(String name, byte[] blob) {
+    public Route(String name, int color, byte[] blob) {
         super(name, Type.Route);
         this.points = fromBlob(blob);
         this.start = points.get(0);
         this.destination = points.get(points.size() - 1);
+        this.color = new Color(color);
     }
 
-    public Route(int id, int shipId, String name, byte[] blob) {
-        this(name, blob);
+    public Route(int id, int shipId, String name, byte[] blob, int color) {
+        this(name, color, blob);
         this.id = id;
         this.shipId = shipId;
     }
@@ -85,12 +88,24 @@ public class Route extends InteractiveNode {
         this.destination = destination;
     }
 
+    public void setPoints(PointArray points) {
+        this.points = points;
+    }
+
     public void setPointsLayer(Layer pointsLayer) {
         this.pointsLayer = pointsLayer;
     }
 
     public void setLinesLayer(Layer linesLayer) {
         this.linesLayer = linesLayer;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public void setColor(String colorStr) {
+        this.color = Map.hex2Rgb(colorStr);
     }
 
     public int getId() {
@@ -121,8 +136,13 @@ public class Route extends InteractiveNode {
         return linesLayer;
     }
 
+    public Color getColor() {
+        return color;
+    }
+
     public void calculate() {
-        points = new PointArray(start, destination);
+        points = new PointArray();
+        buildOrthodrome(start, destination, 30);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(name);
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Shape files (*.shp)", "*.shp"));
@@ -132,6 +152,49 @@ public class Route extends InteractiveNode {
         } else {
             toShapefile(file.getAbsolutePath());
         }
+    }
+
+    public PointArray buildOrthodrome(Point start, Point destination, int n) {
+        PointArray points = new PointArray(start);
+        this.points.add(start);
+        InverseProblemSolutionBinding ipsb = Geodesic.solveInverseProblem(start, destination);
+        double bearing = ipsb.getBearingTo();
+        double h = ipsb.getDistance() / n;
+        for (int i = 0; i < n; ++i) {
+            DirectProblemSolutionBinding dpsb = Geodesic.solveDirectProblem(points.get(points.size() - 1), bearing, h);
+            if (Map.getInstance().isWater(dpsb.getPosition())) {
+                this.points.add(dpsb.getPosition());
+                bearing = dpsb.getBearing();
+                points.add(dpsb.getPosition());
+            } else {
+                return turn(points, n);
+            }
+        }
+        points.add(destination);
+        return points;
+    }
+
+    public PointArray turn(PointArray points, int n) {
+        PointArray newPath = null;
+        while (points.size() > 0) {
+            InverseProblemSolutionBinding ipsb = Geodesic.solveInverseProblem(points.get(points.size() - 1), destination);
+            double bearing = ipsb.getBearingTo();
+            double h = ipsb.getDistance() / n;
+            for (int j = 1; j < 46; ++j) {
+                Point newStart = Geodesic.solveDirectProblem(
+                        points.get(points.size() - 1), bearing - j * 2, h
+                ).getPosition();
+                if (Map.getInstance().isWater(newStart)) {
+                    newPath = buildOrthodrome(newStart, destination, n);
+                    if (newPath != null && newPath.get(newPath.size() - 1).equals(destination)) {
+                        points.add(newPath);
+                        return points;
+                    }
+                }
+            }
+            points.remove(points.size() - 1);
+        }
+        return newPath;
     }
 
     @Override
@@ -183,10 +246,10 @@ public class Route extends InteractiveNode {
                     featureCollection,
                     SLD.createPointStyle(
                             "square",
-                            Color.MAGENTA,
+                            color,
                             Color.BLACK,
                             1.0f,
-                            5.0f
+                            3.0f
                     )
             );
         } catch (Exception e) {
@@ -234,7 +297,7 @@ public class Route extends InteractiveNode {
         try {
             layer = new FeatureLayer(
                     featureCollection,
-                    SLD.createLineStyle(Color.MAGENTA, 1.0f)
+                    SLD.createLineStyle(color, 1.0f)
             );
         } catch (Exception e) {
             e.printStackTrace();
@@ -346,7 +409,7 @@ public class Route extends InteractiveNode {
         return tooltip;
     }
 
-    void deleteDirectoryStream(Path path) throws IOException {
+    private void deleteDirectoryStream(Path path) throws IOException {
         Files.walk(path)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)

@@ -9,6 +9,8 @@ import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
@@ -19,6 +21,14 @@ import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapPane;
+import org.geotools.swing.action.MapAction;
+import org.geotools.swing.action.ZoomInAction;
+import org.geotools.swing.action.ZoomOutAction;
+import org.geotools.swing.event.MapMouseEvent;
+import org.geotools.swing.event.MapMouseListener;
+import org.geotools.swing.tool.PanTool;
+import org.geotools.swing.tool.ZoomInTool;
+import org.geotools.swing.tool.ZoomOutTool;
 import org.geotools.util.factory.GeoTools;
 import org.geotools.util.factory.Hints;
 import org.locationtech.jts.geom.Coordinate;
@@ -31,6 +41,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -49,8 +60,11 @@ public class Map {
     private FilterFactory2 ff;
     private GeometryFactory gf;
     private FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+    private java.awt.Point panePos;
+    private boolean isDragging;
 
-    private static final String mainLayerPathname       = "res/Shapefiles/ne_50m_admin_0_sovereignty.shp";
+    private static final String mainLayerPathname       = "res/Shapefiles/Marine/ne_10m_geography_marine_polys.shp";
+    private static final String landLayerPathname       = "res/Shapefiles/Admin/ne_50m_admin_0_sovereignty.shp";
     private static final String bathymetry10000Pathname = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_A_10000.shp";
     private static final String bathymetry9000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_B_9000.shp";
     private static final String bathymetry8000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_C_8000.shp";
@@ -63,14 +77,16 @@ public class Map {
     private static final String bathymetry1000Pathname  = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_J_1000.shp";
     private static final String bathymetry200Pathname   = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_K_200.shp";
     private static final String bathymetry0Pathname     = "res/Shapefiles/Bathymetry/ne_10m_bathymetry_L_0.shp";
+    private static final String graticulesPathname      = "res/Shapefiles/Graticules/ne_10m_graticules_5.shp";
 
     private static final ArrayList<Tuple2<String, Style>> styles;
     static
     {
         styles = new ArrayList<>();
-        styles.add(new Tuple2<>(mainLayerPathname, SLD.createPolygonStyle(hex2Rgb("#F5D760"), hex2Rgb("#F5D76E"), 1.0f)));
-        styles.add(new Tuple2<>(bathymetry0Pathname,     SLD.createPolygonStyle(hex2Rgb("#FFFFFF"), hex2Rgb("#FFFFFF"), 1.0f)));
-        styles.add(new Tuple2<>(bathymetry200Pathname,   SLD.createPolygonStyle(hex2Rgb("#000000"), hex2Rgb("#E3ECFC"), 1.0f)));
+        styles.add(new Tuple2<>(mainLayerPathname,       SLD.createPolygonStyle(hex2Rgb("#FFFFFF"), hex2Rgb("#FFFFFF"), 1.0f)));
+        styles.add(new Tuple2<>(landLayerPathname,       SLD.createPolygonStyle(hex2Rgb("#F5D760"), hex2Rgb("#F5D76E"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry0Pathname,     SLD.createPolygonStyle(hex2Rgb("#E3ECFC"), hex2Rgb("#E3ECFC"), 1.0f)));
+        styles.add(new Tuple2<>(bathymetry200Pathname,   SLD.createPolygonStyle(hex2Rgb("#E0E0E0"), hex2Rgb("#D5E5F7"), 1.0f)));
         styles.add(new Tuple2<>(bathymetry1000Pathname,  SLD.createPolygonStyle(hex2Rgb("#C7D8F8"), hex2Rgb("#C7D8F8"), 1.0f)));
         styles.add(new Tuple2<>(bathymetry2000Pathname,  SLD.createPolygonStyle(hex2Rgb("#AAC5F5"), hex2Rgb("#AAC5F5"), 1.0f)));
         styles.add(new Tuple2<>(bathymetry3000Pathname,  SLD.createPolygonStyle(hex2Rgb("#8EB2F2"), hex2Rgb("#8EB2F2"), 1.0f)));
@@ -81,6 +97,7 @@ public class Map {
         styles.add(new Tuple2<>(bathymetry8000Pathname,  SLD.createPolygonStyle(hex2Rgb("#2436AF"), hex2Rgb("#2436AF"), 1.0f)));
         styles.add(new Tuple2<>(bathymetry9000Pathname,  SLD.createPolygonStyle(hex2Rgb("#121B9D"), hex2Rgb("#121B9D"), 1.0f)));
         styles.add(new Tuple2<>(bathymetry10000Pathname, SLD.createPolygonStyle(hex2Rgb("#00008B"), hex2Rgb("#00008B"), 1.0f)));
+        styles.add(new Tuple2<>(graticulesPathname, SLD.createLineStyle(Color.BLACK, 1)));
     }
 
     private static Map ourInstance = new Map();
@@ -146,6 +163,76 @@ public class Map {
         for (Tuple2<String, Style> style : styles) {
             while(!addLayer(style.get0(), style.get1())) {}
         }
+
+        pane.setDoubleBuffered(true);
+        pane.addMouseListener(new MapMouseListener() {
+            @Override
+            public void onMouseClicked(MapMouseEvent e) {
+                Rectangle paneArea = pane.getVisibleRect();
+                DirectPosition2D mapPos = e.getWorldPos();
+                DirectPosition2D corner = new DirectPosition2D(mapPos.getX() + paneArea.getWidth(), mapPos.getY() + paneArea.getHeight());
+                double defaultScale = 4.333334857941979;
+                double scale = pane.getWorldToScreenTransform().getScaleX();
+                double newScale = scale;
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    newScale = scale * ZoomInTool.DEFAULT_ZOOM_FACTOR;
+                    corner = new DirectPosition2D(mapPos.getX() - 0.5D * paneArea.getWidth() / newScale, mapPos.getY() + 0.5D * paneArea.getHeight() / newScale);
+                }
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    newScale = scale / ZoomInTool.DEFAULT_ZOOM_FACTOR;
+                    if (newScale < defaultScale) {
+                        return;
+                    } else {
+                        corner = new DirectPosition2D(mapPos.getX() - 0.5D * paneArea.getWidth() / newScale, mapPos.getY() - 0.5D * paneArea.getHeight() / newScale);
+                    }
+                }
+                Envelope2D newMapArea = new Envelope2D();
+                newMapArea.setFrameFromCenter(mapPos, corner);
+                pane.setDisplayArea(newMapArea);
+            }
+
+            @Override
+            public void onMouseDragged(MapMouseEvent mapMouseEvent) {
+                if (isDragging) {
+                    java.awt.Point pos = mapMouseEvent.getPoint();
+                    if (!pos.equals(panePos)) {
+                        pane.moveImage(pos.x - panePos.x, pos.y - panePos.y);
+                        panePos = pos;
+                    }
+                }
+            }
+
+            @Override
+            public void onMouseEntered(MapMouseEvent mapMouseEvent) {
+
+            }
+
+            @Override
+            public void onMouseExited(MapMouseEvent mapMouseEvent) {
+
+            }
+
+            @Override
+            public void onMouseMoved(MapMouseEvent mapMouseEvent) {
+
+            }
+
+            @Override
+            public void onMousePressed(MapMouseEvent mapMouseEvent) {
+                panePos = mapMouseEvent.getPoint();
+                isDragging = true;
+            }
+
+            @Override
+            public void onMouseReleased(MapMouseEvent mapMouseEvent) {
+                isDragging = false;
+            }
+
+            @Override
+            public void onMouseWheelMoved(MapMouseEvent mapMouseEvent) {
+
+            }
+        });
     }
 
     public void setWidth(int width) {
@@ -177,7 +264,7 @@ public class Map {
     }
 
     public boolean isWater(Point point) {
-        Coordinate coord = new Coordinate(point.getLon(), point.getLat());
+        Coordinate coord = new Coordinate(point.getLat(), point.getLon());
 
         Intersects filter = ff.intersects(ff.property(geomAttrName), ff.literal(gf.createPoint(coord)));
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = null;
@@ -186,7 +273,7 @@ public class Map {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return features == null || features.isEmpty();
+        return !features.isEmpty();
     }
 
     public boolean addLayer(Layer layer) {
@@ -237,7 +324,7 @@ public class Map {
         if (file != null) {
             Rectangle imageBounds;
             ReferencedEnvelope mapBounds;
-            mapBounds = mapContent.getMaxBounds();
+            mapBounds = mapContent.getViewport().getBounds();
             double heightToWidth = mapBounds.getSpan(1) / mapBounds.getSpan(0);
             imageBounds = new Rectangle(0, 0, width, (int) (heightToWidth * width));
 

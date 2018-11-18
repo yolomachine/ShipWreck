@@ -5,6 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.util.converter.DoubleStringConverter;
 
 import java.net.URL;
@@ -35,6 +36,9 @@ public class RouteEditController implements Initializable {
     @FXML
     private Spinner<Double> destinationLongitudeSpinner;
 
+    @FXML
+    private ColorPicker colorPicker;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         DecimalFormat format = new DecimalFormat("#.###", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
@@ -57,6 +61,7 @@ public class RouteEditController implements Initializable {
                 spinner.getEditor().setTextFormatter(spinnerFormatter);
             }
         }
+        colorPicker.setValue(Color.MAGENTA);
         nameTextField.setEditable(true);
         startLatitudeSpinner.setValueFactory(
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(-90, 90, 0, 1));
