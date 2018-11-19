@@ -4,6 +4,7 @@ import Model.Geo.Point;
 import Model.Route;
 import Utils.Icons.Icons;
 import javafx.scene.Scene;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -16,6 +17,7 @@ public class RouteEditStage extends CustomModalStage<Route> {
     private Spinner<Double> destinationLatitude;
     private Spinner<Double> destinationLongitude;
     private ColorPicker colorPicker;
+    private ChoiceBox pathfindingMethodChoiceBox;
 
     public RouteEditStage() {
         super(
@@ -32,6 +34,7 @@ public class RouteEditStage extends CustomModalStage<Route> {
         startLongitude = (Spinner<Double>) scene.lookup("#startLongitudeSpinner");
         destinationLatitude = (Spinner<Double>) scene.lookup("#destinationLatitudeSpinner");
         destinationLongitude = (Spinner<Double>) scene.lookup("#destinationLongitudeSpinner");
+        pathfindingMethodChoiceBox = (ChoiceBox) scene.lookup("#pathfindingMethodChoiceBox");
         colorPicker = (ColorPicker) scene.lookup("#colorPicker");
         setOnConfirm(() -> {
             Color color = colorPicker.getValue();
@@ -39,7 +42,8 @@ public class RouteEditStage extends CustomModalStage<Route> {
                     nameTextField.getText(),
                     new Point(startLatitude.getValue(), startLongitude.getValue()),
                     new Point(destinationLatitude.getValue(), destinationLongitude.getValue()),
-                    new java.awt.Color((float) color.getRed(), (float) color.getGreen(), (float) color.getBlue(), (float) color.getOpacity()).getRGB()
+                    new java.awt.Color((float) color.getRed(), (float) color.getGreen(), (float) color.getBlue(), (float) color.getOpacity()).getRGB(),
+                    (String) pathfindingMethodChoiceBox.getValue()
             );
             close();
         });

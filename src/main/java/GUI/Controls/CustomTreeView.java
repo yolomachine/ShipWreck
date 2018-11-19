@@ -157,20 +157,16 @@ public class CustomTreeView extends TreeView<InteractiveNode> {
             }
             getRoot().getChildren().add(item);
         }
-
-//        Route testGrid = new Route("grid", new Point(-180, 90), new Point(180, -90), Color.BLACK.getRGB());
-//        PointArray gridPoints = new PointArray();
-//        for (float lat = -180; lat <= 180; lat += 1) {
-//            for (float lon = 90; lon >= -90; lon -= 1) {
-//                Point point = new Point(lat, lon);
-//                if (Map.getInstance().isWater(point)) {
-//                    gridPoints.add(point);
-//                }
-//            }
-//        }
-//        testGrid.setPoints(gridPoints);
-//        testGrid.toShapefile();
-
+        expandTreeView(getRoot());
         setPrefSize(200, 200);
+    }
+
+    private void expandTreeView(TreeItem<?> item){
+        if (item != null && !item.isLeaf()){
+            item.setExpanded(true);
+            for (TreeItem<?> child : item.getChildren()){
+                expandTreeView(child);
+            }
+        }
     }
 }

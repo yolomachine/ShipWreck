@@ -39,6 +39,9 @@ public class RouteEditController implements Initializable {
     @FXML
     private ColorPicker colorPicker;
 
+    @FXML
+    private ChoiceBox pathfindingMethodChoiceBox;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         DecimalFormat format = new DecimalFormat("#.###", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
@@ -61,6 +64,11 @@ public class RouteEditController implements Initializable {
                 spinner.getEditor().setTextFormatter(spinnerFormatter);
             }
         }
+        pathfindingMethodChoiceBox.getItems().add("Greedy [Left]");
+        pathfindingMethodChoiceBox.getItems().add("Greedy [Right]");
+        pathfindingMethodChoiceBox.getItems().add("Isochrone [AStar]");
+        pathfindingMethodChoiceBox.getItems().add("Isochrone [Dijkstra]");
+        pathfindingMethodChoiceBox.setValue(pathfindingMethodChoiceBox.getItems().get(0));
         colorPicker.setValue(Color.MAGENTA);
         nameTextField.setEditable(true);
         startLatitudeSpinner.setValueFactory(

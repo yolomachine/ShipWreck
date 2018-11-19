@@ -1,6 +1,7 @@
 package Model;
 
 import GUI.Controls.InteractiveNode;
+import Model.Database.Database;
 import Model.Geo.*;
 import Model.Geo.Point;
 import javafx.scene.control.Tooltip;
@@ -50,24 +51,27 @@ public class Route extends InteractiveNode {
     private Layer pointsLayer;
     private Layer linesLayer;
     private Color color;
+    private String pathfindingMethod;
 
-    public Route(String name, Point start, Point destination, int color) {
+    public Route(String name, Point start, Point destination, int color, String pathfindingMethod) {
         super(name, Type.Route);
         this.start = start;
         this.destination = destination;
         this.color = new Color(color);
+        this.pathfindingMethod = pathfindingMethod;
     }
 
-    public Route(String name, int color, byte[] blob) {
+    public Route(String name, int color, String pathfindingMethod, byte[] blob) {
         super(name, Type.Route);
         this.points = fromBlob(blob);
         this.start = points.get(0);
         this.destination = points.get(points.size() - 1);
         this.color = new Color(color);
+        this.pathfindingMethod = pathfindingMethod;
     }
 
-    public Route(int id, int shipId, String name, byte[] blob, int color) {
-        this(name, color, blob);
+    public Route(int id, int shipId, String name, byte[] blob, int color, String pathfindingMethod) {
+        this(name, color, pathfindingMethod, blob);
         this.id = id;
         this.shipId = shipId;
     }
@@ -142,7 +146,19 @@ public class Route extends InteractiveNode {
 
     public void calculate() {
         points = new PointArray();
-        buildOrthodrome(start, destination, 30);
+        switch (pathfindingMethod) {
+            case "Greedy [Left]":
+                points = Pathfinder.getInstance().greedyBestFirstSearch(start, destination, 60, false);
+                break;
+            case "Greedy [Right]":
+                points = Pathfinder.getInstance().greedyBestFirstSearch(start, destination, 60, true);
+                break;
+            case "Isochrone [AStar]":
+                Ship ship = Database.getInstance().getShipsTable().selectWhereId(getShipId()).get(0);
+                points = Pathfinder.getInstance().isochroneMethod(start, destination, ship.getMaxVelocity() * 0.514444);
+                break;
+        }
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(name);
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Shape files (*.shp)", "*.shp"));
@@ -152,49 +168,6 @@ public class Route extends InteractiveNode {
         } else {
             toShapefile(file.getAbsolutePath());
         }
-    }
-
-    public PointArray buildOrthodrome(Point start, Point destination, int n) {
-        PointArray points = new PointArray(start);
-        this.points.add(start);
-        InverseProblemSolutionBinding ipsb = Geodesic.solveInverseProblem(start, destination);
-        double bearing = ipsb.getBearingTo();
-        double h = ipsb.getDistance() / n;
-        for (int i = 0; i < n; ++i) {
-            DirectProblemSolutionBinding dpsb = Geodesic.solveDirectProblem(points.get(points.size() - 1), bearing, h);
-            if (Map.getInstance().isWater(dpsb.getPosition())) {
-                this.points.add(dpsb.getPosition());
-                bearing = dpsb.getBearing();
-                points.add(dpsb.getPosition());
-            } else {
-                return turn(points, n);
-            }
-        }
-        points.add(destination);
-        return points;
-    }
-
-    public PointArray turn(PointArray points, int n) {
-        PointArray newPath = null;
-        while (points.size() > 0) {
-            InverseProblemSolutionBinding ipsb = Geodesic.solveInverseProblem(points.get(points.size() - 1), destination);
-            double bearing = ipsb.getBearingTo();
-            double h = ipsb.getDistance() / n;
-            for (int j = 1; j < 46; ++j) {
-                Point newStart = Geodesic.solveDirectProblem(
-                        points.get(points.size() - 1), bearing - j * 2, h
-                ).getPosition();
-                if (Map.getInstance().isWater(newStart)) {
-                    newPath = buildOrthodrome(newStart, destination, n);
-                    if (newPath != null && newPath.get(newPath.size() - 1).equals(destination)) {
-                        points.add(newPath);
-                        return points;
-                    }
-                }
-            }
-            points.remove(points.size() - 1);
-        }
-        return newPath;
     }
 
     @Override
@@ -230,7 +203,7 @@ public class Route extends InteractiveNode {
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
 
         for (Point point : points) {
-            featureBuilder.add(geometryFactory.createPoint(new Coordinate(point.getLon(), point.getLat())));
+            featureBuilder.add(geometryFactory.createPoint(new Coordinate(point.getLat(), point.getLon())));
             features.add(featureBuilder.buildFeature(null));
         }
 
@@ -268,9 +241,10 @@ public class Route extends InteractiveNode {
         WKTReader reader = new WKTReader( geometryFactory );
         StringBuilder lineStringBuilder = new StringBuilder("LINESTRING(");
 
-        for (Point point : points) {
+        for (int i = 0; i < points.size(); ++i) {
+            Point point = points.get(i);
             lineStringBuilder.append(point.toString());
-            if (point == points.get(points.size() - 1)) {
+            if (i == points.size() - 1) {
                 lineStringBuilder.append(")");
             } else {
                 lineStringBuilder.append(", ");
@@ -380,8 +354,8 @@ public class Route extends InteractiveNode {
         ByteBuffer bb = ByteBuffer.allocate(Integer.BYTES + points.size() * 8 * 2);
         bb.putInt(points.size());
         for (Point point : points) {
-            bb.putDouble(point.getLat());
             bb.putDouble(point.getLon());
+            bb.putDouble(point.getLat());
         }
         return bb.array();
     }
@@ -391,8 +365,8 @@ public class Route extends InteractiveNode {
         PointArray points = new PointArray();
         int size = bb.getInt();
         for (int i = 0; i < size; ++i) {
-            double lat = bb.getDouble();
             double lon = bb.getDouble();
+            double lat = bb.getDouble();
             points.add(new Point(lat, lon));
         }
         return points;

@@ -1,7 +1,6 @@
 package GUI.StageControllers;
 
 import GUI.Controls.CustomTreeView;
-import GUI.Controls.ShipsListView;
 import Model.Map;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
@@ -19,14 +18,10 @@ public class MainController implements Initializable {
     private ScrollPane mapScrollPane;
 
     @FXML
-    private TitledPane shipsTitledPane;
-
-    @FXML
     private TitledPane routesTitledPane;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        shipsTitledPane.setContent(ShipsListView.getInstance());
         routesTitledPane.setContent(CustomTreeView.getInstance());
         createMap();
     }

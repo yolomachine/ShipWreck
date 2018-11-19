@@ -27,7 +27,7 @@ public class Point {
     }
 
     public String toString() {
-        return String.format("%s %s", lon, lat);
+        return String.format("%s %s", lat, lon);
     }
 
     public Point toRadians() {
@@ -51,6 +51,11 @@ public class Point {
         }
         Point otherPoint = (Point) other;
         return (Math.abs(this.getLon() - otherPoint.getLon()) < 1e-6) && (Math.abs(this.getLat() - otherPoint.getLat()) < 1e-6);
+    }
+
+    @Override
+    public int hashCode() {
+        return (531 + Double.valueOf(getLat()).hashCode()) * 531 + Double.valueOf(getLon()).hashCode();
     }
 }
 

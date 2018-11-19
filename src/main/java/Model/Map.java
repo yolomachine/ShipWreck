@@ -264,7 +264,7 @@ public class Map {
     }
 
     public boolean isWater(Point point) {
-        Coordinate coord = new Coordinate(point.getLat(), point.getLon());
+        Coordinate coord = new Coordinate(point.getLon(), point.getLat());
 
         Intersects filter = ff.intersects(ff.property(geomAttrName), ff.literal(gf.createPoint(coord)));
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = null;

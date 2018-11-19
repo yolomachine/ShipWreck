@@ -41,7 +41,8 @@ public class RoutesTable extends Table<Route> {
                     resultSet.getInt("ShipId"),
                     resultSet.getString("Name"),
                     resultSet.getBytes("Points"),
-                    resultSet.getInt("Color")
+                    resultSet.getInt("Color"),
+                    "Greedy [Left]"
             );
             route.toShapefile();
             nodes.add(route);
