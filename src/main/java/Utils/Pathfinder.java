@@ -1,4 +1,4 @@
-package Model;
+package Utils;
 
 import Model.Geo.*;
 
@@ -17,6 +17,9 @@ public class Pathfinder {
     public PointArray isochroneMethod(Point start, Point destination, double velocity) {
         Graph graph = new Graph();
         graph.addVertex(start);
+
+        PointArray points = new PointArray();
+        points.add(start);
 
         PointArray prev = new PointArray();
         PointArray next = new PointArray();
@@ -54,6 +57,7 @@ public class Pathfinder {
         }
 
         prev.add(orthodromesFronts);
+        points.add(orthodromesFronts);
 
         // TO DO: Apply speed loss function
         for (int j = 1; j < n - 1; ++j) {
@@ -112,6 +116,7 @@ public class Pathfinder {
             }
             prev.clear();
             prev.add(isochrone);
+            points.add(isochrone);
         }
         graph.addVertex(destination);
         for (Point p : prev) {
@@ -123,6 +128,7 @@ public class Pathfinder {
         path.add(graph.AStar.search(start, destination));
         path.add(destination);
         return path;
+//        return points;
     }
 
     private boolean isInSector(Point tested, Point start, double distance, double bearingLeft, double bearingRight, int rank) {

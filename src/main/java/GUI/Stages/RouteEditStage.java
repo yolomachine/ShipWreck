@@ -1,8 +1,8 @@
 package GUI.Stages;
 
 import Model.Geo.Point;
-import Model.Route;
-import Utils.Icons.Icons;
+import GUI.Controls.Route;
+import Utils.Icons;
 import javafx.scene.Scene;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;

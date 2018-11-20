@@ -24,10 +24,10 @@ public class ShipEditController implements Initializable {
     public TextField nameTextField;
 
     @FXML
-    public Spinner<Double> tonnageSpinner;
+    public Spinner<Double> displacementSpinner;
 
     @FXML
-    public Spinner<Double> maxVelocitySpinner;
+    public Spinner<Double> serviceSpeedSpinner;
 
     @FXML
     public Spinner<Double> fuelAmountSpinner;
@@ -58,9 +58,9 @@ public class ShipEditController implements Initializable {
             }
         }
         nameTextField.setEditable(true);
-        tonnageSpinner.setValueFactory(
+        displacementSpinner.setValueFactory(
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 20000, 0, 500));
-        maxVelocitySpinner.setValueFactory(
+        serviceSpeedSpinner.setValueFactory(
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 500, 0, 10));
         fuelAmountSpinner.setValueFactory(
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1000, 0, 100));

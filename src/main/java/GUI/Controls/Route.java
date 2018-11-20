@@ -1,9 +1,10 @@
-package Model;
+package GUI.Controls;
 
-import GUI.Controls.InteractiveNode;
-import Model.Database.Database;
+import Database.Database;
 import Model.Geo.*;
 import Model.Geo.Point;
+import Utils.Map;
+import Utils.Pathfinder;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -148,14 +149,14 @@ public class Route extends InteractiveNode {
         points = new PointArray();
         switch (pathfindingMethod) {
             case "Greedy [Left]":
-                points = Pathfinder.getInstance().greedyBestFirstSearch(start, destination, 60, false);
+                points = Pathfinder.getInstance().greedyBestFirstSearch(start, destination, 30, false);
                 break;
             case "Greedy [Right]":
-                points = Pathfinder.getInstance().greedyBestFirstSearch(start, destination, 60, true);
+                points = Pathfinder.getInstance().greedyBestFirstSearch(start, destination, 30, true);
                 break;
             case "Isochrone [AStar]":
                 Ship ship = Database.getInstance().getShipsTable().selectWhereId(getShipId()).get(0);
-                points = Pathfinder.getInstance().isochroneMethod(start, destination, ship.getMaxVelocity() * 0.514444);
+                points = Pathfinder.getInstance().isochroneMethod(start, destination, ship.getServiceSpeed() * 0.514444);
                 break;
         }
 

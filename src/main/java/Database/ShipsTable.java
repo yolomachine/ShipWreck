@@ -1,6 +1,6 @@
-package Model.Database;
+package Database;
 
-import Model.Ship;
+import GUI.Controls.Ship;
 import com.healthmarketscience.sqlbuilder.*;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
 import javafx.util.Pair;
@@ -55,8 +55,8 @@ public class ShipsTable extends Table<Ship> {
         ArrayList<Pair<DbColumn, Object>> insertPairs = new ArrayList<>();
         insertPairs.add(new Pair<>(idColumn, ship.getId()));
         insertPairs.add(new Pair<>(name, ship.toString()));
-        insertPairs.add(new Pair<>(tonnage, ship.getTonnage()));
-        insertPairs.add(new Pair<>(maxVelocity, ship.getMaxVelocity()));
+        insertPairs.add(new Pair<>(tonnage, ship.getDisplacement()));
+        insertPairs.add(new Pair<>(maxVelocity, ship.getServiceSpeed()));
         insertPairs.add(new Pair<>(fuelAmount, ship.getFuelAmount()));
         insertPairs.add(new Pair<>(fuelConsumptionRate, ship.getFuelConsumptionRate()));
         return insertPairs;

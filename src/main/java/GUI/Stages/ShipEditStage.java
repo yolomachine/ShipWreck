@@ -1,7 +1,7 @@
 package GUI.Stages;
 
-import Model.Ship;
-import Utils.Icons.Icons;
+import GUI.Controls.Ship;
+import Utils.Icons;
 import javafx.scene.Scene;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -24,8 +24,8 @@ public class ShipEditStage extends CustomModalStage<Ship> {
         );
         Scene scene = getScene();
         nameTextField = (TextField) scene.lookup("#nameTextField");
-        tonnageSpinner = (Spinner<Double>) scene.lookup("#tonnageSpinner");
-        maxVelocitySpinner = (Spinner<Double>) scene.lookup("#maxVelocitySpinner");
+        tonnageSpinner = (Spinner<Double>) scene.lookup("#displacementSpinner");
+        maxVelocitySpinner = (Spinner<Double>) scene.lookup("#serviceSpeedSpinner");
         fuelAmountSpinner = (Spinner<Double>) scene.lookup("#fuelAmountSpinner");
         fuelConsumptionRateSpinner = (Spinner<Double>) scene.lookup("#fuelConsumptionRateSpinner");
         setOnConfirm(() -> {
@@ -47,8 +47,8 @@ public class ShipEditStage extends CustomModalStage<Ship> {
             return;
         }
         nameTextField.setText(ship.toString());
-        tonnageSpinner.getValueFactory().setValue(ship.getTonnage());
-        maxVelocitySpinner.getValueFactory().setValue(ship.getMaxVelocity());
+        tonnageSpinner.getValueFactory().setValue(ship.getDisplacement());
+        maxVelocitySpinner.getValueFactory().setValue(ship.getServiceSpeed());
         fuelAmountSpinner.getValueFactory().setValue(ship.getFuelAmount());
         fuelConsumptionRateSpinner.getValueFactory().setValue(ship.getFuelConsumptionRate());
     }

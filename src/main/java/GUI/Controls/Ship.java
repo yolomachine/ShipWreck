@@ -1,25 +1,24 @@
-package Model;
+package GUI.Controls;
 
-import GUI.Controls.InteractiveNode;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
 
 public class Ship extends InteractiveNode {
-    private double tonnage;
-    private double maxVelocity;
+    private double displacement;
+    private double serviceSpeed;
     private double fuelAmount;
     private double fuelConsumptionRate;
 
-    public Ship(String name, double tonnage, double maxVelocity, double fuelAmount, double fuelConsumptionRate) {
+    public Ship(String name, double displacement, double serviceSpeed, double fuelAmount, double fuelConsumptionRate) {
         super(name, Type.Ship);
-        this.tonnage = tonnage;
-        this.maxVelocity = maxVelocity;
+        this.displacement = displacement;
+        this.serviceSpeed = serviceSpeed;
         this.fuelAmount = fuelAmount;
         this.fuelConsumptionRate = fuelConsumptionRate;
     }
 
-    public Ship(int id, String name, double tonnage, double maxVelocity, double fuelAmount, double fuelConsumptionRate) {
-        this(name, tonnage, maxVelocity, fuelAmount, fuelConsumptionRate);
+    public Ship(int id, String name, double displacement, double serviceSpeed, double fuelAmount, double fuelConsumptionRate) {
+        this(name, displacement, serviceSpeed, fuelAmount, fuelConsumptionRate);
         this.id = id;
     }
 
@@ -27,12 +26,12 @@ public class Ship extends InteractiveNode {
         this.id = id;
     }
 
-    public void setTonnage(double tonnage) {
-        this.tonnage = tonnage;
+    public void setDisplacement(double displacement) {
+        this.displacement = displacement;
     }
 
-    public void setMaxVelocity(double maxVelocity) {
-        this.maxVelocity = maxVelocity;
+    public void setServiceSpeed(double serviceSpeed) {
+        this.serviceSpeed = serviceSpeed;
     }
 
     public void setFuelAmount(double fuelAmount) {
@@ -47,12 +46,12 @@ public class Ship extends InteractiveNode {
         return id;
     }
 
-    public double getTonnage() {
-        return tonnage;
+    public double getDisplacement() {
+        return displacement;
     }
 
-    public double getMaxVelocity() {
-        return maxVelocity;
+    public double getServiceSpeed() {
+        return serviceSpeed;
     }
 
     public double getFuelAmount() {
@@ -67,7 +66,7 @@ public class Ship extends InteractiveNode {
     public Tooltip getTooltip() {
         String tooltipText = String.format(
                 "Tonnage: %.2f; Max velocity: %.2f; Fuel amount: %.2f",
-                tonnage, maxVelocity, fuelAmount
+                displacement, serviceSpeed, fuelAmount
         );
         Tooltip tooltip = new Tooltip(tooltipText);
         tooltip.setFont(new Font(24));

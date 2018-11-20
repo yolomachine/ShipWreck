@@ -1,4 +1,4 @@
-package Utils.Icons;
+package Utils;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

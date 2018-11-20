@@ -1,4 +1,4 @@
-package Model.Database;
+package Database;
 
 import GUI.Controls.InteractiveNode;
 import com.healthmarketscience.sqlbuilder.*;

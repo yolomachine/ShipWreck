@@ -1,8 +1,6 @@
-package Model;
+package Utils;
 
-import Model.Geo.Geodesic;
-import Model.Geo.Point;
-import Model.Geo.PointArray;
+import Model.Geo.*;
 import com.healthmarketscience.common.util.Tuple2;
 
 import java.util.ArrayList;
@@ -57,6 +55,22 @@ public class Graph {
     public class AStar {
         public AStar() { }
 
+        private double tryFindLand(Point start, Point destination) {
+            InverseProblemSolutionBinding ipsb = Geodesic.solveInverseProblem(start, destination);
+            double bearing = ipsb.getBearingTo();
+            double h = ipsb.getDistance() / 100;
+            Point current = start;
+            for (int i = 0; i < 100; ++i) {
+                DirectProblemSolutionBinding dpsb = Geodesic.solveDirectProblem(current, bearing, h);
+                bearing = dpsb.getBearing();
+                current = dpsb.getPosition();
+                if (!Map.getInstance().isWater(current)) {
+                    return Double.MAX_VALUE;
+                }
+            }
+            return 0.0;
+        }
+
         private PointArray reconstructPath(HashMap<Integer, Integer> cameFrom, Node current) {
             PointArray path = new PointArray();
             while (cameFrom.keySet().contains(current.hashCode())) {
@@ -105,7 +119,10 @@ public class Graph {
                         continue;
                     }
 
-                    double gScoreTentative = gScore.getOrDefault(current.hashCode(), Double.MAX_VALUE) + edge.getWeight();
+                    double gScoreTentative =
+                            gScore.getOrDefault(current.hashCode(), Double.MAX_VALUE)
+                            + edge.getWeight()
+                            + ((neighbor.target == destination || current.target == destination) ? tryFindLand(current.target, neighbor.target) : 0.0);
                     if (!open.contains(neighbor)) {
                         open.add(neighbor);
                     } else if (gScoreTentative >= gScore.getOrDefault(neighbor.hashCode(), Double.MAX_VALUE)) {

@@ -26,13 +26,13 @@
          <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
         <Label alignment="CENTER" text="Name" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-        <Label alignment="CENTER" text="Tonnage" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-        <Label alignment="CENTER" text="Maximum Velocity" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <Label alignment="CENTER" text="Displacement" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <Label alignment="CENTER" text="Service Speed" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
         <Label alignment="CENTER" text="Fuel Amount" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
         <Label alignment="CENTER" text="Fuel Consumption Rate" textAlignment="CENTER" wrapText="true" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
         <TextField fx:id="nameTextField" GridPane.columnIndex="1" />
-        <Spinner fx:id="tonnageSpinner" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-        <Spinner fx:id="maxVelocitySpinner" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+        <Spinner fx:id="displacementSpinner" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+        <Spinner fx:id="serviceSpeedSpinner" GridPane.columnIndex="1" GridPane.rowIndex="2" />
         <Spinner fx:id="fuelAmountSpinner" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         <Spinner fx:id="fuelConsumptionRateSpinner" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
         <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">

@@ -1,4 +1,4 @@
-package Model.Database;
+package Database;
 
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
