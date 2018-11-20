@@ -1,18 +1,11 @@
 package GUI.Controls;
 
-import Model.Geo.Point;
-import Model.Geo.PointArray;
-import Model.Map;
-import Model.Route;
-import Model.Ship;
-import Model.Database.Database;
-import Utils.Icons.Icons;
+import Database.Database;
+import Utils.Icons;
 import javafx.scene.control.*;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.util.StringConverter;
-
-import java.awt.*;
 
 public class CustomTreeView extends TreeView<InteractiveNode> {
 

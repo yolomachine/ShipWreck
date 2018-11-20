@@ -67,7 +67,6 @@ public class RouteEditController implements Initializable {
         pathfindingMethodChoiceBox.getItems().add("Greedy [Left]");
         pathfindingMethodChoiceBox.getItems().add("Greedy [Right]");
         pathfindingMethodChoiceBox.getItems().add("Isochrone [AStar]");
-        pathfindingMethodChoiceBox.getItems().add("Isochrone [Dijkstra]");
         pathfindingMethodChoiceBox.setValue(pathfindingMethodChoiceBox.getItems().get(0));
         colorPicker.setValue(Color.MAGENTA);
         nameTextField.setEditable(true);

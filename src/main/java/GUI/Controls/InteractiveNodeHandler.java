@@ -2,9 +2,7 @@ package GUI.Controls;
 
 import GUI.Stages.RouteEditStage;
 import GUI.Stages.ShipEditStage;
-import Model.Route;
-import Model.Ship;
-import Model.Database.Database;
+import Database.Database;
 
 public class InteractiveNodeHandler {
 

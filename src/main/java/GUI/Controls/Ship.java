@@ -1,4 +1,4 @@
-package Model;
+package GUI.Controls;
 
 import GUI.Controls.InteractiveNode;
 import javafx.scene.control.Tooltip;

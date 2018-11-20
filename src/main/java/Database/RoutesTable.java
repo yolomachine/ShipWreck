@@ -1,6 +1,6 @@
-package Model.Database;
+package Database;
 
-import Model.Route;
+import GUI.Controls.Route;
 import com.healthmarketscience.sqlbuilder.*;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
 import javafx.util.Pair;

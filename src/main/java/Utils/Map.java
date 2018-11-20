@@ -1,4 +1,4 @@
-package Model;
+package Utils;
 
 import Model.Geo.Point;
 import com.healthmarketscience.common.util.Tuple2;
@@ -21,14 +21,9 @@ import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapPane;
-import org.geotools.swing.action.MapAction;
-import org.geotools.swing.action.ZoomInAction;
-import org.geotools.swing.action.ZoomOutAction;
 import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.event.MapMouseListener;
-import org.geotools.swing.tool.PanTool;
 import org.geotools.swing.tool.ZoomInTool;
-import org.geotools.swing.tool.ZoomOutTool;
 import org.geotools.util.factory.GeoTools;
 import org.geotools.util.factory.Hints;
 import org.locationtech.jts.geom.Coordinate;

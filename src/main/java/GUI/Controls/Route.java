@@ -1,9 +1,10 @@
-package Model;
+package GUI.Controls;
 
-import GUI.Controls.InteractiveNode;
-import Model.Database.Database;
+import Database.Database;
 import Model.Geo.*;
 import Model.Geo.Point;
+import Utils.Map;
+import Utils.Pathfinder;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;

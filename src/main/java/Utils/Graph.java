@@ -1,4 +1,4 @@
-package Model;
+package Utils;
 
 import Model.Geo.Geodesic;
 import Model.Geo.Point;

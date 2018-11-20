@@ -1,7 +1,7 @@
 package GUI.Stages;
 
-import Model.Ship;
-import Utils.Icons.Icons;
+import GUI.Controls.Ship;
+import Utils.Icons;
 import javafx.scene.Scene;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;

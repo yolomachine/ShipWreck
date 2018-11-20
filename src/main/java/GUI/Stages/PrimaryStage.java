@@ -1,7 +1,7 @@
 package GUI.Stages;
 
-import Model.Database.Database;
-import Utils.Icons.Icons;
+import Database.Database;
+import Utils.Icons;
 
 public class PrimaryStage extends CustomStage {
 

@@ -1,7 +1,7 @@
 package GUI.StageControllers;
 
 import GUI.Controls.CustomTreeView;
-import Model.Map;
+import Utils.Map;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

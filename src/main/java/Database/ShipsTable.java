@@ -1,6 +1,6 @@
-package Model.Database;
+package Database;
 
-import Model.Ship;
+import GUI.Controls.Ship;
 import com.healthmarketscience.sqlbuilder.*;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
 import javafx.util.Pair;
